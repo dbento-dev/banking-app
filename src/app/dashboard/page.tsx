@@ -2,6 +2,8 @@
 import React from "react";
 import { useSearchParams } from "next/navigation";
 
+import BalanceCard from "@/app/dashboard/components/BalanceCard/BalanceCard";
+
 export default function DashboardPage() {
   const searchParams = useSearchParams();
   const activeSection = searchParams.get("section") || "inicio";
@@ -10,8 +12,12 @@ export default function DashboardPage() {
     switch (section) {
       case "inicio":
         return (
-          <div>
-            <h2>Dashboard</h2>
+          <div className="ml-6 flex h-[96vh] flex-row">
+            <div className="mr-6 flex-4/6 rounded-xl bg-[var(--surface)] px-18 py-12">
+              <div className="mt-8 flex flex-col items-center gap-6">
+                <BalanceCard accountType="Conta Corrente" balance={2500.0} />
+              </div>
+            </div>
           </div>
         );
       case "transferencias":
