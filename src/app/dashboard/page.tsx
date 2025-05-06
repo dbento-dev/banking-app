@@ -5,6 +5,7 @@ import { useSearchParams } from "next/navigation";
 import DashboardHeader from "@/app/dashboard/components/DashboardHeader/DashboardHeader";
 import BalanceCard from "@/app/dashboard/components/BalanceCard/BalanceCard";
 import TransactionForm from "@/app/dashboard/components/TransactionForm/TransactionForm";
+import ExtractContent from "@/app/dashboard/components/ExtractContent/ExtractContent";
 
 export default function DashboardPage() {
   const searchParams = useSearchParams();
@@ -21,6 +22,9 @@ export default function DashboardPage() {
                 <BalanceCard accountType="Conta Corrente" balance={2500.0} />
                 <TransactionForm />
               </div>
+            </div>
+            <div className="flex-1/6 rounded-xl bg-[var(--surface)]">
+              <ExtractContent />
             </div>
           </div>
         );
