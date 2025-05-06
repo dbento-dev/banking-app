@@ -2,6 +2,7 @@
 import React from "react";
 import { useSearchParams } from "next/navigation";
 
+import DashboardHeader from "@/app/dashboard/components/DashboardHeader/DashboardHeader";
 import BalanceCard from "@/app/dashboard/components/BalanceCard/BalanceCard";
 
 export default function DashboardPage() {
@@ -14,6 +15,7 @@ export default function DashboardPage() {
         return (
           <div className="ml-6 flex h-[96vh] flex-row">
             <div className="mr-6 flex-4/6 rounded-xl bg-[var(--surface)] px-18 py-12">
+              <DashboardHeader name="Joana" />
               <div className="mt-8 flex flex-col items-center gap-6">
                 <BalanceCard accountType="Conta Corrente" balance={2500.0} />
               </div>
