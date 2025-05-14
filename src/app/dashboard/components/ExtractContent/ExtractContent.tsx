@@ -47,7 +47,7 @@ const sampleTransactions: Transaction[] = [
 
 export default function ExtractContent() {
   return (
-    <div className="px-6 pt-12">
+    <div className="px-4 py-6 md:p-6">
       <div className="mb-4 flex flex-row items-center">
         <IconAvatar className="mr-4 size-[38px] stroke-current text-[var(--color-primary)]" />
         <h2 className="text-xl font-semibold">Joana da Silva Oliveira</h2>

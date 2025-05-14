@@ -5,6 +5,7 @@ interface SideBarItemProps {
   text: string;
   isActive?: boolean;
   onClick: () => void;
+  className?: string
 }
 
 export default function SideBarItem({

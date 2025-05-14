@@ -23,25 +23,26 @@ export default function BalanceCard({
   });
 
   return (
-    <div className="mt-8 flex h-[350px] w-[700px] flex-col justify-between rounded-xl bg-[var(--color-tertiary)] p-6 text-[var(--color-on-tertiary)]">
-      <div className="flex flex-row items-center justify-between">
-        <IconCreditCard className="mr-8 size-[38px] stroke-current" />
-        <div className="flex flex-col items-end">
-          <h4 className="text-sm font-bold">**** 1411</h4>
-          <h6 className="text-xs">11/38</h6>
+    <div className="w-[60%] h-[40%] mt-8 flex flex-col justify-between rounded-xl bg-[var(--color-tertiary)] text-[var(--color-on-tertiary)] px-4 sm:px-6 py-6 sm:py-8 ">
+      <div className="flex items-center justify-between">
+        <IconCreditCard className="size-8 size-[38px] stroke-current object-contain" />
+        <div className="flex flex-col items-end text-xs sm:text-sm">
+          <h4 className="font-bold">**** 1411</h4>
+          <h6>11/38</h6>
         </div>
       </div>
 
-      <div className="flex flex-row items-center justify-between">
-        <Image src={Logotipo} alt="Bandeira do cartão" />
-        <div className="flex flex-col items-center">
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 sm:gap-0">
+        {/* <Image src={Logotipo} alt="Bandeira do cartão" className="w-16 sm:w-auto" /> */}
+        < Image src={Logotipo} alt="Bandeira do cartão" className="object-contain" />
+        <div className="flex flex-col items-center text-sm sm:text-base">
           <div className="w-full border-b border-white pb-1">
-            <div className="flex flex-row items-center">
-              <p className="mr-2 text-lg">{formattedBalance}</p>
+            <div className="flex items-center">
+              <p className="mr-2 truncate max-w-[160px] sm:max-w-none">{formattedBalance}</p>
               <IconEye className="size-5" />
             </div>
           </div>
-          <h3 className="mt-1 text-sm">{accountType}</h3>
+          <h3 className="mt-1">{accountType}</h3>
         </div>
       </div>
     </div>

@@ -9,7 +9,7 @@ interface DashboardLayoutProps {
 
 export default function DashboardLayout({ children }: DashboardLayoutProps) {
   return (
-    <div className="flex bg-[var(--background)] p-4">
+    <div className="flex bg-[var(--background)] px-4 py-6 ">
       <SideBar />
       <div className="h-full w-full">
         <main className="overflow-y-auto">{children}</main>

@@ -15,15 +15,15 @@ export default function DashboardPage() {
     switch (section) {
       case "inicio":
         return (
-          <div className="ml-6 flex h-[96vh] flex-row">
-            <div className="mr-6 flex-4/6 rounded-xl bg-[var(--surface)] px-18 py-12">
+          <div className=" flex flex-col gap-5 px-4 md:flex-row md:h-[90vh] overflow-y-auto">
+            <div className="flex-grow rounded-xl bg-[var(--surface)] p-5">
               <DashboardHeader name="Joana" />
-              <div className="mt-8 flex flex-col items-center gap-6">
+              <div className="h-[90%] mt-4 flex flex-col items-center gap-5">
                 <BalanceCard accountType="Conta Corrente" balance={2500.0} />
                 <TransactionForm />
               </div>
             </div>
-            <div className="flex-1/6 rounded-xl bg-[var(--surface)]">
+            <div className="w-full rounded-xl bg-[var(--surface)] md:max-w-sm">
               <ExtractContent />
             </div>
           </div>
