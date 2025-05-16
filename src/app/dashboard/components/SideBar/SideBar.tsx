@@ -44,6 +44,10 @@ export default function SideBar() {
     params.set("section", itemId);
 
     router.push(`?${params.toString()}`, { scroll: false });
+
+    if (window.innerWidth < 768) {
+      setIsSidebarOpen(false);
+    }
   };
 
   const toggleSidebar = () => {
@@ -66,7 +70,16 @@ export default function SideBar() {
       <aside
         // className="flex flex-col items-center bg-[var(--surface)] p-6 text-[var(--foreground)] w-full md:w-64 lg:w-80 h-screen overflow-y-auto rounded-xl">
         // className={`flex flex-col items-center bg-[var(--surface)] p-5 text-[var(--foreground)] md:w-64 lg:w-90 overflow-y-auto rounded-xl transition-all duration-300 ease-in-out ${isSidebarOpen ? "block" : "hidden"
-        className={`flex flex-col items-center bg-[var(--surface)] p-5 text-[var(--foreground)] md:w-64 lg:w-90 overflow-y-auto rounded-xl transition-all duration-300 ease-in-out ${isSidebarOpen ? "block" : "hidden"}`}
+        // className={`flex flex-col items-center bg-[var(--surface)] p-5 text-[var(--foreground)] md:w-64 lg:w-90 overflow-y-auto rounded-xl transition-all duration-300 ease-in-out ${isSidebarOpen ? "block" : "hidden"}`}
+        className={`
+          flex flex-col items-center bg-[var(--surface)] p-5 text-[var(--foreground)]
+          overflow-y-auto shadow-lg md:shadow-none
+          transition-transform duration-300 ease-in-out
+          fixed top-0 left-0 h-full w-64 z-40 
+          rounded-r-xl md:rounded-xl 
+          ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"}
+          md:static md:translate-x-0 md:w-64 lg:w-90 md:h-screen md:z-auto
+        `}
       >
         <Image
           src={Logotipo}
@@ -83,7 +96,7 @@ export default function SideBar() {
                   text={item.text}
                   isActive={activeSidebarItem === item.id}
                   onClick={() => handleItemClick(item.id)}
-                // className="transition-all duration-300 ease-in-out hover:bg-[var(--color-hover)] hover:text-[var(--color-on-primary)]"
+                  // className="transition-all duration-300 ease-in-out hover:bg-[var(--color-hover)] hover:text-[var(--color-on-primary)]"
                 />
               </li>
             ))}
