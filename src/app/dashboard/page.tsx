@@ -7,9 +7,16 @@ import BalanceCard from "@/app/dashboard/components/BalanceCard/BalanceCard";
 import TransactionForm from "@/app/dashboard/components/TransactionForm/TransactionForm";
 import ExtractContent from "@/app/dashboard/components/ExtractContent/ExtractContent";
 
+import { useUserData } from "@/hooks/useUserData";
+import { useAccountData } from "@/hooks/useAccountData";
+
 export default function DashboardPage() {
   const searchParams = useSearchParams();
   const activeSection = searchParams.get("section") || "inicio";
+
+  const userEmail = "alice@email.com";
+  const { user, isLoadingUser } = useUserData(userEmail);
+  const { account, isLoadingAccount } = useAccountData(user?.id);
 
   const renderMainContent = (section: string | null) => {
     switch (section) {
@@ -17,9 +24,28 @@ export default function DashboardPage() {
         return (
           <div className=" flex flex-col gap-5 px-4 md:flex-row md:h-[90vh] overflow-y-auto">
             <div className="flex-grow rounded-xl bg-[var(--surface)] p-5">
-              <DashboardHeader name="Joana" />
+              {isLoadingUser && (
+                <p className="text-center">
+                  Carregando informações do usuário...
+                </p>
+              )}
+
+              {user && <DashboardHeader name={user.name} />}
+
               <div className="h-[90%] mt-4 flex flex-col items-center gap-5">
-                <BalanceCard accountType="Conta Corrente" balance={2500.0} />
+                {isLoadingAccount && (
+                  <p className="text-center">Carregando dados da conta...</p>
+                )}
+
+                {user && account && (
+                  <BalanceCard
+                    accountType={account.account_type}
+                    cardNumber={account.card_number}
+                    expirationDate={account.expiration_date}
+                    balance={parseFloat(account.balance)}
+                  />
+                )}
+
                 <TransactionForm />
               </div>
             </div>
