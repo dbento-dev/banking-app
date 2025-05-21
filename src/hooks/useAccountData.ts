@@ -20,7 +20,7 @@ export function useAccountData(userId: string | null | undefined) {
       setAccountError(null);
       try {
         const response = await fetch(
-          `/api/accounts/findByUserIdProxy?userId=${encodeURIComponent(userId)}`
+          `http://localhost:4000/accounts/findByUserId?userId=${encodeURIComponent(userId)}`
         );
         if (!response.ok) {
           const errorData = await response.json().catch(() => ({}));

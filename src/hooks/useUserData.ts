@@ -21,7 +21,7 @@ export function useUserData(email: string | null) {
       setUserError(null);
       try {
         const response = await fetch(
-          `/api/users/findByEmailProxy?email=${encodeURIComponent(email)}`
+          `http://localhost:4000/users/findByEmail?email=${encodeURIComponent(email)}`
         );
         if (!response.ok) {
           const errorData = await response.json().catch(() => ({}));
