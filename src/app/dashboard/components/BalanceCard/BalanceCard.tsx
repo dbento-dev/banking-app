@@ -1,11 +1,11 @@
-import React from "react";
-import Image from "next/image";
+"use client";
+
 import { formatDisplayDate } from "@/utils/date/formatDisplayDate";
 import { maskCardNumber } from "@/utils/string/maskCardNumber";
 
-import Logotipo from "@/assets/icons/icon-flagcard.png";
 import IconCreditCard from "@/assets/icons/icon-creditcard.svg";
 import IconEye from "@/assets/icons/icon-eye.svg";
+import { useState } from "react";
 
 interface BalanceCardProps {
   accountType: string;
@@ -22,6 +22,7 @@ export default function BalanceCard({
   balance,
   currency = "BRL",
 }: BalanceCardProps) {
+  const [isBalanceVisible, setIsBalanceVisible] = useState(false);
   const formattedBalance = balance.toLocaleString("pt-BR", {
     style: "currency",
     currency: currency,
@@ -32,32 +33,42 @@ export default function BalanceCard({
   const formattedExpirationDate = formatDisplayDate(expirationDate, "MM/YY");
 
   return (
-    <div className="w-[60%] h-[40%] mt-8 flex flex-col justify-between rounded-xl bg-[var(--color-tertiary)] text-[var(--color-on-tertiary)] px-4 sm:px-6 py-6 sm:py-8 ">
-      <div className="flex items-center justify-between">
-        <IconCreditCard className="size-[38px] stroke-current object-contain" />
-        <div className="flex flex-col items-end text-xs sm:text-sm">
-          <h4 className="font-bold">{displayCardNumber}</h4>
-          <h6>{formattedExpirationDate}</h6>
+    <div className="flex aspect-[1.75/1] w-full rounded-2xl bg-[#2D2A31] p-6 text-white transition-all duration-300 hover:shadow-lg sm:p-8 md:h-[336px]">
+      <div className="flex w-full flex-col justify-between">
+        <div className="flex items-start justify-between">
+          <IconCreditCard className="h-7 w-7 stroke-current stroke-[1.5px] opacity-90 sm:h-8 sm:w-8" />
+          <div className="flex flex-col items-end space-y-0.5">
+            <p className="font-medium tracking-wider">{displayCardNumber}</p>
+            <p className="text-xs tracking-wider opacity-70">
+              {formattedExpirationDate}
+            </p>
+          </div>
         </div>
-      </div>
 
-      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 sm:gap-0">
-        {/* <Image src={Logotipo} alt="Bandeira do cartão" className="w-16 sm:w-auto" /> */}
-        <Image
-          src={Logotipo}
-          alt="Bandeira do cartão"
-          className="object-contain"
-        />
-        <div className="flex flex-col items-center text-sm sm:text-base">
-          <div className="w-full border-b border-white pb-1">
-            <div className="flex items-center">
-              <p className="mr-2 truncate max-w-[160px] sm:max-w-none">
-                {formattedBalance}
-              </p>
-              <IconEye className="size-5" />
+        <div className="flex items-center justify-between">
+          <div className="">
+            <div className="relative h-8 w-12 sm:h-10 sm:w-14">
+              <div className="absolute right-0 h-8 w-8 rounded-full bg-[#9747FF] sm:h-10 sm:w-10" />
+              <div className="absolute left-0 h-8 w-8 rounded-full bg-[#F21439] sm:h-10 sm:w-10" />
             </div>
           </div>
-          <h3 className="mt-1">{accountType}</h3>
+          <div className="">
+            <div className="group flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => setIsBalanceVisible(!isBalanceVisible)}
+                className="cursor-pointer opacity-70 transition-opacity hover:opacity-100"
+              >
+                <IconEye className="h-4 w-4 sm:h-5 sm:w-5" />
+              </button>
+              <p className="text-lg font-medium tracking-wider sm:text-xl">
+                {isBalanceVisible ? formattedBalance : "R$ ••••••"}
+              </p>
+            </div>
+            <p className="mt-1 text-sm tracking-wide opacity-70 sm:text-base">
+              {accountType}
+            </p>
+          </div>
         </div>
       </div>
     </div>

@@ -47,13 +47,22 @@ const sampleTransactions: Transaction[] = [
 
 export default function ExtractContent() {
   return (
-    <div className="px-4 py-6 md:p-6">
-      <div className="mb-4 flex flex-row items-center">
-        <IconAvatar className="mr-4 size-[38px] stroke-current text-[var(--color-primary)]" />
-        <h2 className="text-xl font-semibold">Joana da Silva Oliveira</h2>
+    <div className="flex h-full flex-col px-4 py-6 md:p-6">
+      <div className="mb-6 flex flex-row items-center justify-between border-b border-[var(--color-border)] pb-4">
+        <div className="flex items-center">
+          <IconAvatar className="mr-4 size-[38px] stroke-current text-[var(--color-primary)]" />
+          <div>
+            <h2 className="text-xl font-semibold">Joana da Silva Oliveira</h2>
+            <p className="text-sm text-[var(--color-text-secondary)]">
+              Conta Corrente
+            </p>
+          </div>
+        </div>
       </div>
 
-      <TransactionList transactions={sampleTransactions} />
+      <div className="flex-1 overflow-y-auto">
+        <TransactionList transactions={sampleTransactions} />
+      </div>
     </div>
   );
 }
