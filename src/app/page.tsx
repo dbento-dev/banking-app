@@ -1,14 +1,12 @@
 "use client";
-import React from "react";
-import { useSearchParams } from "next/navigation";
 
-import DashboardHeader from "@/app/dashboard/components/DashboardHeader/DashboardHeader";
 import BalanceCard from "@/app/dashboard/components/BalanceCard/BalanceCard";
-import TransactionForm from "@/app/dashboard/components/TransactionForm/TransactionForm";
+import DashboardHeader from "@/app/dashboard/components/DashboardHeader/DashboardHeader";
 import ExtractContent from "@/app/dashboard/components/ExtractContent/ExtractContent";
-
-import { useUserData } from "@/hooks/useUserData";
+import TransactionForm from "@/app/dashboard/components/TransactionForm/TransactionForm";
 import { useAccountData } from "@/hooks/useAccountData";
+import { useUserData } from "@/hooks/useUserData";
+import { useSearchParams } from "next/navigation";
 
 export default function Home() {
   const searchParams = useSearchParams();
@@ -56,7 +54,7 @@ export default function Home() {
                 </div>
               </div>
               <div className="w-full rounded-xl bg-[var(--surface)] xl:w-[320px]">
-                <ExtractContent />
+                <ExtractContent account={account} user={user} />
               </div>
             </div>
           </div>
