@@ -5,6 +5,7 @@ import DashboardHeader from "@/app/dashboard/components/DashboardHeader/Dashboar
 import ExtractContent from "@/app/dashboard/components/ExtractContent/ExtractContent";
 import TransactionForm from "@/app/dashboard/components/TransactionForm/TransactionForm";
 import { useAccountData } from "@/hooks/useAccountData";
+import { useTransactionData } from "@/hooks/useTransactionsData";
 import { useUserData } from "@/hooks/useUserData";
 import { useSearchParams } from "next/navigation";
 
@@ -14,7 +15,10 @@ export default function Home() {
 
   const userEmail = "alice@email.com";
   const { user, isLoadingUser } = useUserData(userEmail);
-  const { account, isLoadingAccount } = useAccountData(user?.id);
+  const { account, isLoadingAccount, refetchAccount } = useAccountData(
+    user?.id
+  );
+  const { transactions, refetchTransactions } = useTransactionData(account?.id);
 
   const renderMainContent = (section: string | null) => {
     switch (section) {
@@ -48,13 +52,25 @@ export default function Home() {
                       />
                     )}
                   </div>
-                  <div className="w-full">
-                    <TransactionForm />
-                  </div>
+                  {account && (
+                    <div className="w-full">
+                      <TransactionForm
+                        accountId={account.id}
+                        onSuccess={async () => {
+                          await refetchAccount();
+                          await refetchTransactions();
+                        }}
+                      />
+                    </div>
+                  )}
                 </div>
               </div>
               <div className="w-full rounded-xl bg-[var(--surface)] xl:w-[320px]">
-                <ExtractContent account={account} user={user} />
+                <ExtractContent
+                  transactions={transactions}
+                  account={account}
+                  user={user}
+                />
               </div>
             </div>
           </div>

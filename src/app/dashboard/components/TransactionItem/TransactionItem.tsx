@@ -30,7 +30,7 @@ export default function TransactionItem({ transaction }: TransactionItemProps) {
 
         <div className="flex flex-col">
           <span className="text-sm font-medium text-gray-700">
-            {transaction.description}
+            {transaction.description || transaction.category_name}
           </span>
           <span className="text-xs text-gray-500">
             {formatDisplayDateWithYear(transaction.transaction_date)}

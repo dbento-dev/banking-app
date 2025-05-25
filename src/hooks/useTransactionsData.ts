@@ -1,6 +1,6 @@
 import { getTransactionsByAccountId } from "@/api/transactionService";
 import { Transaction } from "@/types/transactionEntities";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 export function useTransactionData(accountId: string | null | undefined) {
   const [transactions, setTransactions] = useState<Transaction[] | null>(null);
@@ -9,35 +9,38 @@ export function useTransactionData(accountId: string | null | undefined) {
     null
   );
 
-  useEffect(() => {
+  const fetchTransactions = useCallback(async () => {
     if (!accountId) {
       setTransactions(null);
-      setIsLoadingTransactions(false);
-      setTransactionsError(null);
       return;
     }
+    setIsLoadingTransactions(true);
+    setTransactionsError(null);
 
-    const fetchTransactions = async () => {
-      setIsLoadingTransactions(true);
-      setTransactions(null);
-      setTransactionsError(null);
-      try {
-        const transactionsData = await getTransactionsByAccountId(accountId);
-        setTransactions(transactionsData);
-      } catch (error) {
-        console.error("Falha ao buscar transações no hook:", error);
-        setTransactionsError(
-          error instanceof Error
-            ? error.message
-            : "Erro desconhecido ao buscar transações."
-        );
-      } finally {
-        setIsLoadingTransactions(false);
-      }
-    };
-
-    fetchTransactions();
+    try {
+      const transactionsData = await getTransactionsByAccountId(accountId);
+      setTransactions(transactionsData);
+      return transactionsData;
+    } catch (error) {
+      console.error("Falha ao buscar transações no hook:", error);
+      setTransactionsError(
+        error instanceof Error
+          ? error.message
+          : "Erro desconhecido ao buscar transações."
+      );
+    } finally {
+      setIsLoadingTransactions(false);
+    }
   }, [accountId]);
 
-  return { transactions, isLoadingTransactions, transactionsError };
+  useEffect(() => {
+    fetchTransactions();
+  }, [fetchTransactions]);
+
+  return {
+    transactions,
+    isLoadingTransactions,
+    transactionsError,
+    refetchTransactions: fetchTransactions,
+  };
 }

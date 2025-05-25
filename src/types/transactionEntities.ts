@@ -7,4 +7,22 @@ export interface Transaction {
   category_id: string;
   category_name: TransactionCategoryName;
 }
+export interface TransactionCreate {
+  accountId: string;
+  amount: number;
+  description: string;
+  transactionDate: string;
+  categoryId: string;
+}
+export interface TransactionFormState {
+  categoryId: string;
+  amount: string;
+  description: string;
+}
+
+// Transaction Category
 export type TransactionCategoryName = "Entrada" | "Saída";
+export interface TransactionCategory {
+  id: string;
+  name: TransactionCategoryName;
+}
