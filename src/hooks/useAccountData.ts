@@ -1,6 +1,7 @@
-// src/hooks/useAccountData.ts
-import { useState, useEffect } from "react";
+import { getAccountsByUserId } from "@/api/accountService";
 import { Account } from "@/types/accountEntities";
+import { useEffect, useState } from "react";
+
 export function useAccountData(userId: string | null | undefined) {
   const [account, setAccount] = useState<Account | null>(null);
   const [isLoadingAccount, setIsLoadingAccount] = useState(false);
@@ -19,22 +20,9 @@ export function useAccountData(userId: string | null | undefined) {
       setAccount(null);
       setAccountError(null);
       try {
-        const response = await fetch(
-          `http://localhost:4000/accounts/findByUserId?userId=${encodeURIComponent(userId)}`
-        );
-        if (!response.ok) {
-          const errorData = await response.json().catch(() => ({}));
-          throw new Error(
-            errorData.error ||
-              `Erro ao buscar conta: ${response.status} ${response.statusText}`
-          );
-        }
-        const accountsData: Account[] = await response.json();
+        const accountsData = await getAccountsByUserId(userId);
         if (accountsData && accountsData.length > 0) {
-          const correnteAccount = accountsData.find(
-            (acc) => acc.account_type === "corrente"
-          );
-          setAccount(correnteAccount || accountsData[0]);
+          setAccount(accountsData[0]);
         } else {
           console.warn(
             "Nenhuma conta encontrada para o usuário no hook:",

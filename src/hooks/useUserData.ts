@@ -1,6 +1,7 @@
 // src/hooks/useUserData.ts
-import { useState, useEffect } from "react";
+import { getUserByEmail } from "@/api/userService";
 import { User } from "@/types/userEntities";
+import { useEffect, useState } from "react";
 
 export function useUserData(email: string | null) {
   const [user, setUser] = useState<User | null>(null);
@@ -20,17 +21,7 @@ export function useUserData(email: string | null) {
       setUser(null);
       setUserError(null);
       try {
-        const response = await fetch(
-          `http://localhost:4000/users/findByEmail?email=${encodeURIComponent(email)}`
-        );
-        if (!response.ok) {
-          const errorData = await response.json().catch(() => ({}));
-          throw new Error(
-            errorData.error ||
-              `Erro ao buscar usuário: ${response.status} ${response.statusText}`
-          );
-        }
-        const userData: User = await response.json();
+        const userData = await getUserByEmail(email);
         setUser(userData);
       } catch (error) {
         console.error("Falha ao buscar dados do usuário no hook:", error);
