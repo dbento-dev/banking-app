@@ -24,8 +24,7 @@ export function useTransactionData(accountId: string | null | undefined) {
       setTransactionsError(null);
       try {
         const response = await fetch(
-          // `${TRANSACTION_URL}/findByAccountId?userId=${encodeURIComponent(accountId)}`
-          `${TRANSACTION_URL}`
+          `${TRANSACTION_URL}/findByAccountId?accountId=${encodeURIComponent(accountId)}`
         );
         if (!response.ok) {
           const errorData = await response.json().catch(() => ({}));

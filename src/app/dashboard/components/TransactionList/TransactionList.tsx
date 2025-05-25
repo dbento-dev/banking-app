@@ -1,10 +1,10 @@
-import TransactionItem from "@/app/dashboard/components/TransactionItem";
+import TransactionItem from "@/app/dashboard/components/TransactionItem/TransactionItem";
 import { Transaction } from "@/types/transactionEntities";
+import { WalletIcon } from "lucide-react";
 
 interface TransactionListProps {
   transactions: Transaction[];
 }
-
 export default function TransactionList({
   transactions,
 }: TransactionListProps) {
@@ -17,79 +17,54 @@ export default function TransactionList({
       </div>
     );
   }
-
-  // TEMP
-  transactions.map((tr) => {
-    if (tr.category_name === "Depósito") {
-      tr.category_name = "deposit";
-    } else if (tr.category_name === "Transferência") {
-      tr.category_name = "transfer";
-    } else if (tr.category_name === "Pagamento") {
-      tr.category_name = "payment";
-    }
-  });
-  const todayTransactions = transactions.filter((transaction) => {
-    const transactionDate = new Date(transaction.transaction_date);
-    const today = new Date();
-    return (
-      transactionDate.toISOString().split("T")[0] ===
-      today.toISOString().split("T")[0]
-    );
-  });
-  const previousTransactions = transactions.filter((transaction) => {
-    const transactionDate = new Date(transaction.transaction_date);
-    const today = new Date();
-    return (
-      transactionDate.toISOString().split("T")[0] !==
-      today.toISOString().split("T")[0]
-    );
+  const groupedTransactions = transactions.reduce(
+    (acc, transaction) => {
+      const date = new Date(transaction.transaction_date);
+      const month = date.toLocaleString("pt-BR", { month: "long" });
+      const key = month;
+      if (!acc[key]) acc[key] = [];
+      acc[key].push(transaction);
+      return acc;
+    },
+    {} as Record<string, Transaction[]>
+  );
+  const sortedGroups = Object.entries(groupedTransactions).sort((a, b) => {
+    const dateA = new Date(a[1][0].transaction_date);
+    const dateB = new Date(b[1][0].transaction_date);
+    return dateB.getTime() - dateA.getTime();
   });
 
   return (
     <div className="flex flex-col">
-      <div className="mb-6 flex items-center justify-between">
+      <div className="mb-6 flex items-center">
+        <WalletIcon className="mr-2 h-5 w-5 text-[var(--color-text)]" />
         <h4 className="text-xl font-semibold text-[var(--color-text)]">
           Extrato
         </h4>
-        <button className="cursor-pointer text-sm text-[var(--color-secondary)] hover:underline">
-          Ver tudo
-        </button>
       </div>
-      <div className="space-y-6">
-        {todayTransactions.length > 0 && (
-          <div>
-            <h6 className="mb-4 flex items-center text-sm font-medium text-[var(--color-text-secondary)]">
-              <span className="mr-3 font-semibold text-gray-700">Hoje</span>
-              <div className="h-[1px] flex-1 bg-[var(--color-border)]" />
-            </h6>
-            <ul className="space-y-4">
-              {todayTransactions.map((transaction) => (
-                <TransactionItem
-                  transaction={transaction}
-                  key={transaction.id}
-                />
-              ))}
-            </ul>
-          </div>
-        )}
-        {previousTransactions.length > 0 && (
-          <div>
-            <h6 className="mb-4 flex items-center text-sm font-medium text-[var(--color-text-secondary)]">
-              <span className="mr-3 font-semibold text-gray-700">
-                Anteriores
-              </span>
-              <div className="h-[1px] flex-1 bg-[var(--color-border)]" />
-            </h6>
-            <ul className="space-y-4">
-              {previousTransactions.map((transaction) => (
-                <TransactionItem
-                  transaction={transaction}
-                  key={transaction.id}
-                />
-              ))}
-            </ul>
-          </div>
-        )}
+      <div className="flex-1">
+        <div className="space-y-8 pr-2">
+          {sortedGroups.map(([groupName, transactions], index) => (
+            <div key={groupName}>
+              <div className="mb-4">
+                <span className="block text-sm font-semibold text-gray-700 capitalize">
+                  {groupName}
+                </span>
+              </div>
+              <ul className="space-y-4">
+                {transactions.map((transaction) => (
+                  <TransactionItem
+                    transaction={transaction}
+                    key={transaction.id}
+                  />
+                ))}
+              </ul>
+              {index !== sortedGroups.length - 1 && (
+                <div className="mt-8 mb-4 h-px bg-[#d8d8d8]" />
+              )}
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );

@@ -5,5 +5,6 @@ export interface Transaction {
   description: string;
   transaction_date: string;
   category_id: string;
-  category_name: string;
+  category_name: TransactionCategoryName;
 }
+export type TransactionCategoryName = "Entrada" | "Saída";

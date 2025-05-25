@@ -24,3 +24,7 @@ export const formatDisplayDate = (
     return "";
   }
 };
+export const formatDisplayDateWithYear = (isoString: string) => {
+  const [year, month, day] = isoString.slice(0, 10).split("-");
+  return `${day}/${month}/${year}`;
+};
