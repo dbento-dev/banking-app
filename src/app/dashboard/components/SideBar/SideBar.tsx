@@ -40,14 +40,32 @@ const menuItems = [
 export default function SideBar() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+  const [isLargeScreen, setIsLargeScreen] = useState(false);
+
   const router = useRouter();
   const searchParams = useSearchParams();
 
   const activeSidebarItem = searchParams.get("section") || "inicio";
 
   useEffect(() => {
-    setIsExpanded(window.innerWidth >= 1440);
-  }, []);
+    const handleResize = () => {
+      const currentWidth = window.innerWidth;
+      setIsMobile(currentWidth < 640);
+      setIsLargeScreen(currentWidth >= 1440);
+
+      if (currentWidth >= 640 && isSidebarOpen) {
+        setIsSidebarOpen(false);
+      }
+
+      setIsExpanded(currentWidth >= 1440);
+    };
+
+    window.addEventListener("resize", handleResize);
+    handleResize();
+
+    return () => window.removeEventListener("resize", handleResize);
+  }, [isSidebarOpen]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -55,11 +73,11 @@ export default function SideBar() {
       const toggleButton = document.getElementById("toggle-button");
 
       if (
+        isMobile && // Usa o estado isMobile aqui
         sidebar &&
         !sidebar.contains(event.target as Node) &&
         toggleButton &&
-        !toggleButton.contains(event.target as Node) &&
-        window.innerWidth < 1440
+        !toggleButton.contains(event.target as Node)
       ) {
         setIsSidebarOpen(false);
       }
@@ -67,20 +85,7 @@ export default function SideBar() {
 
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
-
-  useEffect(() => {
-    const handleResize = () => {
-      if (window.innerWidth >= 640) {
-        setIsSidebarOpen(false);
-      }
-      setIsExpanded(window.innerWidth >= 1440);
-    };
-
-    window.addEventListener("resize", handleResize);
-    handleResize();
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
+  }, [isMobile]);
 
   const handleItemClick = (itemId: string) => {
     const params = new URLSearchParams(searchParams.toString());
@@ -88,7 +93,7 @@ export default function SideBar() {
 
     router.push(`?${params.toString()}`, { scroll: false });
 
-    if (window.innerWidth < 640) {
+    if (isMobile) {
       setIsSidebarOpen(false);
     }
   };
@@ -98,7 +103,7 @@ export default function SideBar() {
   };
 
   const toggleExpanded = () => {
-    if (window.innerWidth < 1440) {
+    if (!isLargeScreen) {
       setIsExpanded(!isExpanded);
     }
   };
@@ -136,7 +141,7 @@ export default function SideBar() {
           <div className="relative flex w-full flex-col items-center">
             <Image
               src={Logotipo}
-              className={`transition-all duration-200 hover:scale-105 ${isExpanded || window.innerWidth < 640 ? "w-[75%] pt-6 pb-12" : "w-12 py-6"} 2xl:w-[75%] 2xl:pt-6 2xl:pb-12`}
+              className={`transition-all duration-200 hover:scale-105 ${isExpanded || isMobile ? "w-[75%] pt-6 pb-12" : "w-12 py-6"} 2xl:w-[75%] 2xl:pt-6 2xl:pb-12`}
               alt="Bytebank Logotipo"
               priority
             />
@@ -153,7 +158,7 @@ export default function SideBar() {
                       text={item.text}
                       isActive={activeSidebarItem === item.id}
                       onClick={() => handleItemClick(item.id)}
-                      isCompact={!isExpanded && window.innerWidth >= 640}
+                      isCompact={!isExpanded && !isMobile}
                     />
                   </li>
                 ))}
@@ -164,7 +169,7 @@ export default function SideBar() {
 
         <button
           onClick={toggleExpanded}
-          className="sticky top-24 z-50 -ml-3 hidden h-6 w-6 items-center justify-center self-start rounded-full border border-[var(--color-border)] bg-[var(--color-primary)] p-1 text-white shadow-md transition-all duration-200 hover:border-[var(--color-primary)] hover:text-[var(--color-primary-hover)] sm:flex 2xl:hidden"
+          className={`sticky top-24 z-50 -ml-3 h-6 w-6 items-center justify-center self-start rounded-full border border-[var(--color-border)] bg-[var(--color-primary)] p-1 text-white shadow-md transition-all duration-200 hover:border-[var(--color-primary)] hover:text-[var(--color-primary-hover)] sm:flex 2xl:hidden ${isMobile ? "hidden" : ""}`}
           aria-label={isExpanded ? "Recolher menu" : "Expandir menu"}
         >
           {isExpanded ? (

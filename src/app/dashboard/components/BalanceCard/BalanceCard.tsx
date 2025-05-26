@@ -1,15 +1,24 @@
-import React, { useState } from "react";
+"use client";
+
+import { formatDisplayDate } from "@/utils/date/formatDisplayDate";
+import { maskCardNumber } from "@/utils/string/maskCardNumber";
+
 import IconCreditCard from "@/assets/icons/icon-creditcard.svg";
 import IconEye from "@/assets/icons/icon-eye.svg";
+import { useState } from "react";
 
 interface BalanceCardProps {
   accountType: string;
+  cardNumber: string;
+  expirationDate: string;
   balance: number;
   currency?: string;
 }
 
 export default function BalanceCard({
   accountType,
+  cardNumber,
+  expirationDate,
   balance,
   currency = "BRL",
 }: BalanceCardProps) {
@@ -20,16 +29,19 @@ export default function BalanceCard({
     minimumFractionDigits: 2,
   });
 
+  const displayCardNumber = maskCardNumber(cardNumber);
+  const formattedExpirationDate = formatDisplayDate(expirationDate, "MM/YY");
+
   return (
     <div className="flex aspect-[1.75/1] w-full rounded-2xl bg-[#2D2A31] p-6 text-white transition-all duration-300 hover:shadow-lg sm:p-8 md:h-[336px]">
       <div className="flex w-full flex-col justify-between">
         <div className="flex items-start justify-between">
           <IconCreditCard className="h-7 w-7 stroke-current stroke-[1.5px] opacity-90 sm:h-8 sm:w-8" />
           <div className="flex flex-col items-end space-y-0.5">
-            <p className="font-medium tracking-wider">
-              <span className="opacity-80">****</span> 1411
+            <p className="font-medium tracking-wider">{displayCardNumber}</p>
+            <p className="text-xs tracking-wider opacity-70">
+              {formattedExpirationDate}
             </p>
-            <p className="text-xs tracking-wider opacity-70">11/38</p>
           </div>
         </div>
 
