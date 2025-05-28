@@ -14,11 +14,15 @@ export default function Home() {
   const activeSection = searchParams.get("section") || "inicio";
 
   const userEmail = "alice@email.com";
-  const { user, isLoadingUser } = useUserData(userEmail);
-  const { account, isLoadingAccount, refetchAccount } = useAccountData(
-    user?.id
+  const { user, isLoading: isLoadingUser } = useUserData(userEmail);
+  const {
+    account,
+    isLoading: isLoadingAccount,
+    invalidateAccountQuery,
+  } = useAccountData(user?.id);
+  const { transactions, invalidateTransactionsQuery } = useTransactionData(
+    account?.id
   );
-  const { transactions, refetchTransactions } = useTransactionData(account?.id);
 
   const renderMainContent = (section: string | null) => {
     switch (section) {
@@ -56,9 +60,9 @@ export default function Home() {
                     <div className="w-full">
                       <TransactionForm
                         accountId={account.id}
-                        onSuccess={async () => {
-                          await refetchAccount();
-                          await refetchTransactions();
+                        onSuccess={() => {
+                          invalidateAccountQuery();
+                          invalidateTransactionsQuery();
                         }}
                       />
                     </div>
