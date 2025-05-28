@@ -1,46 +1,28 @@
 import { getTransactionsByAccountId } from "@/api/transactionService";
 import { Transaction } from "@/types/transactionEntities";
-import { useCallback, useEffect, useState } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 export function useTransactionData(accountId: string | null | undefined) {
-  const [transactions, setTransactions] = useState<Transaction[] | null>(null);
-  const [isLoadingTransactions, setIsLoadingTransactions] = useState(false);
-  const [transactionsError, setTransactionsError] = useState<string | null>(
-    null
-  );
+  const queryClient = useQueryClient();
 
-  const fetchTransactions = useCallback(async () => {
-    if (!accountId) {
-      setTransactions(null);
-      return;
-    }
-    setIsLoadingTransactions(true);
-    setTransactionsError(null);
+  const queryResult = useQuery<Transaction[] | null>({
+    queryKey: ["transactions", accountId],
+    queryFn: async (): Promise<Transaction[] | null> => {
+      if (!accountId) return null;
+      return await getTransactionsByAccountId(accountId);
+    },
+    enabled: !!accountId,
+  });
 
-    try {
-      const transactionsData = await getTransactionsByAccountId(accountId);
-      setTransactions(transactionsData);
-      return transactionsData;
-    } catch (error) {
-      console.error("Falha ao buscar transações no hook:", error);
-      setTransactionsError(
-        error instanceof Error
-          ? error.message
-          : "Erro desconhecido ao buscar transações."
-      );
-    } finally {
-      setIsLoadingTransactions(false);
-    }
-  }, [accountId]);
-
-  useEffect(() => {
-    fetchTransactions();
-  }, [fetchTransactions]);
+  const invalidateTransactionsQuery = () => {
+    queryClient.invalidateQueries({
+      queryKey: ["transactions", accountId],
+    });
+  };
 
   return {
-    transactions,
-    isLoadingTransactions,
-    transactionsError,
-    refetchTransactions: fetchTransactions,
+    ...queryResult,
+    transactions: queryResult.data || null,
+    invalidateTransactionsQuery,
   };
 }

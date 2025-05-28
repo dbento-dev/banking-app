@@ -1,41 +1,24 @@
 import { getTransactionCategories } from "@/api/transactionService";
 import { TransactionCategory } from "@/types/transactionEntities";
-import { useCallback, useEffect, useState } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 export function useTransactionCategoriesData() {
-  const [categories, setCategories] = useState<TransactionCategory[] | null>(
-    null
-  );
-  const [isLoadingCategories, setIsLoadingCategories] = useState(false);
-  const [categoriesError, setCategoriesError] = useState<string | null>(null);
+  const queryClient = useQueryClient();
 
-  const fetchCategories = useCallback(async () => {
-    setIsLoadingCategories(true);
-    setCategoriesError(null);
+  const queryResult = useQuery<TransactionCategory[] | null>({
+    queryKey: ["transaction-categories"],
+    queryFn: () => getTransactionCategories(),
+  });
 
-    try {
-      const categoriesData = await getTransactionCategories();
-      setCategories(categoriesData);
-      return categoriesData;
-    } catch (error) {
-      console.error("Falha ao buscar categorias de transação no hook:", error);
-      setCategoriesError(
-        error instanceof Error
-          ? error.message
-          : "Erro desconhecido ao buscar categorias de transação."
-      );
-    } finally {
-      setIsLoadingCategories(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    fetchCategories();
-  }, [fetchCategories]);
+  const invalidateCategoriesQuery = () => {
+    queryClient.invalidateQueries({
+      queryKey: ["transaction-categories"],
+    });
+  };
 
   return {
-    transactionCategories: categories,
-    isLoadingCategories,
-    categoriesError,
+    ...queryResult,
+    transactionCategories: queryResult.data || null,
+    invalidateCategoriesQuery,
   };
 }

@@ -1,52 +1,29 @@
 import { getAccountsByUserId } from "@/api/accountService";
 import { Account } from "@/types/accountEntities";
-import { useCallback, useEffect, useState } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 export function useAccountData(userId: string | null | undefined) {
-  const [account, setAccount] = useState<Account | null>(null);
-  const [isLoadingAccount, setIsLoadingAccount] = useState(false);
-  const [accountError, setAccountError] = useState<string | null>(null);
+  const queryClient = useQueryClient();
 
-  const fetchAccount = useCallback(async () => {
-    if (!userId) {
-      setAccount(null);
-      return;
-    }
-
-    setIsLoadingAccount(true);
-    setAccountError(null);
-
-    try {
+  const queryResult = useQuery({
+    queryKey: ["account", userId],
+    queryFn: async (): Promise<Account | null> => {
+      if (!userId) return null;
       const accountsData = await getAccountsByUserId(userId);
-      if (accountsData && accountsData.length > 0) {
-        setAccount(accountsData[0]);
-        return accountsData[0];
-      } else {
-        console.warn(
-          "Nenhuma conta encontrada para o usuário no hook:",
-          userId
-        );
-      }
-    } catch (error) {
-      console.error("Falha ao buscar dados da conta no hook:", error);
-      setAccountError(
-        error instanceof Error
-          ? error.message
-          : "Erro desconhecido ao buscar conta."
-      );
-    } finally {
-      setIsLoadingAccount(false);
-    }
-  }, [userId]);
+      return accountsData?.[0] || null;
+    },
+    enabled: !!userId,
+  });
 
-  useEffect(() => {
-    fetchAccount();
-  }, [fetchAccount]);
+  const invalidateAccountQuery = () => {
+    queryClient.invalidateQueries({
+      queryKey: ["account", userId],
+    });
+  };
 
   return {
-    account,
-    isLoadingAccount,
-    accountError,
-    refetchAccount: fetchAccount,
+    ...queryResult,
+    account: queryResult.data || null,
+    invalidateAccountQuery,
   };
 }

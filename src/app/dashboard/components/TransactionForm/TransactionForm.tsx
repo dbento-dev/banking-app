@@ -17,6 +17,7 @@ import {
   TransactionFormState,
 } from "@/types/transactionEntities";
 import { formatCurrency } from "@/utils/currency/formatCurrency";
+import { useMutation } from "@tanstack/react-query";
 import React, { useState } from "react";
 
 interface TransactionFormProps {
@@ -27,7 +28,7 @@ export default function TransactionForm({
   accountId,
   onSuccess,
 }: TransactionFormProps) {
-  const { transactionCategories, isLoadingCategories } =
+  const { transactionCategories, isLoading: isLoadingCategories } =
     useTransactionCategoriesData();
 
   const [formState, setFormState] = useState<TransactionFormState>({
@@ -36,38 +37,33 @@ export default function TransactionForm({
     description: "",
   });
 
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
+  const {
+    mutateAsync: requestCreateTransaction,
+    isPending,
+    isError,
+  } = useMutation({
+    mutationFn: (transactionData: TransactionCreate) =>
+      createTransaction(transactionData),
+    onSuccess: () => {
+      if (onSuccess) onSuccess();
+      setFormState({ categoryId: "", amount: "", description: "" });
+    },
+    onError: (err) => {
+      console.error("Erro ao criar transação:", err);
+    },
+  });
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formState.categoryId || !formState.amount) return;
 
-    setIsSubmitting(true);
-    setError(null);
-
-    try {
-      const transactionData: TransactionCreate = {
-        accountId,
-        amount: parseFloat(formState.amount.replace(".", "").replace(",", ".")),
-        description: formState.description,
-        transactionDate: new Date().toISOString(),
-        categoryId: formState.categoryId,
-      };
-      await createTransaction(transactionData);
-
-      setFormState({
-        categoryId: "",
-        amount: "",
-        description: "",
-      });
-      if (onSuccess) onSuccess();
-    } catch (error) {
-      setError("Erro ao criar transação. Tente novamente.");
-      console.error("Falha ao criar transações:", error);
-    } finally {
-      setIsSubmitting(false);
-    }
+    const transactionData: TransactionCreate = {
+      accountId,
+      amount: parseFloat(formState.amount.replace(".", "").replace(",", ".")),
+      description: formState.description,
+      transactionDate: new Date().toISOString(),
+      categoryId: formState.categoryId,
+    };
+    await requestCreateTransaction(transactionData);
   };
 
   const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -91,9 +87,9 @@ export default function TransactionForm({
         Nova Transação
       </h3>
 
-      {error && (
+      {isError && (
         <div className="mb-4 rounded-md bg-red-100 p-3 text-red-700">
-          {error}
+          Ocorreu um erro ao criar a transação. Por favor, tente novamente.
         </div>
       )}
 
@@ -177,9 +173,9 @@ export default function TransactionForm({
           type="submit"
           className="w-full bg-[var(--color-secondary)] text-[var(--color-on-secondary)] hover:bg-[var(--color-secondary-hover)]"
           size="lg"
-          disabled={!formState.categoryId || !formState.amount || isSubmitting}
+          disabled={!formState.categoryId || !formState.amount || isPending}
         >
-          {isSubmitting ? "Processando..." : "Concluir Transação"}
+          {isPending ? "Processando..." : "Concluir Transação"}
         </Button>
       </div>
     </form>

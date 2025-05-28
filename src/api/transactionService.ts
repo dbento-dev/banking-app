@@ -11,25 +11,52 @@ const TRANSACTION_CATEGORIES_ENDPOINT = "transaction-categories";
 export async function getTransactionsByAccountId(
   accountId: string
 ): Promise<Transaction[]> {
-  const response = await apiFetch(
-    `${TRANSACTION_ENDPOINT}/findByAccountId?accountId=${encodeURIComponent(accountId)}`
-  );
-  return response.json();
+  try {
+    const response = await apiFetch(
+      `${TRANSACTION_ENDPOINT}/findByAccountId?accountId=${encodeURIComponent(accountId)}`
+    );
+    return response.json();
+  } catch (error) {
+    console.error("Falha ao buscar transações da conta:", error);
+    throw new Error(
+      error instanceof Error
+        ? error.message
+        : "Erro desconhecido ao buscar transações da conta."
+    );
+  }
 }
 
 export async function createTransaction(
   transactionData: TransactionCreate
 ): Promise<Transaction> {
-  const response = await apiFetch(TRANSACTION_ENDPOINT, {
-    method: "POST",
-    body: JSON.stringify(transactionData),
-  });
-  return response.json();
+  try {
+    const response = await apiFetch(TRANSACTION_ENDPOINT, {
+      method: "POST",
+      body: JSON.stringify(transactionData),
+    });
+    return response.json();
+  } catch (error) {
+    console.error("Falha ao criar transação:", error);
+    throw new Error(
+      error instanceof Error
+        ? error.message
+        : "Erro desconhecido ao criar transação."
+    );
+  }
 }
 
 export async function getTransactionCategories(): Promise<
   TransactionCategory[]
 > {
-  const response = await apiFetch(TRANSACTION_CATEGORIES_ENDPOINT);
-  return response.json();
+  try {
+    const response = await apiFetch(TRANSACTION_CATEGORIES_ENDPOINT);
+    return response.json();
+  } catch (error) {
+    console.error("Falha ao buscar categorias de transação:", error);
+    throw new Error(
+      error instanceof Error
+        ? error.message
+        : "Erro desconhecido ao buscar categorias de transação."
+    );
+  }
 }
