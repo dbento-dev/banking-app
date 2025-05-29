@@ -9,10 +9,16 @@ describe("DashboardHeader", () => {
     expect(screen.getByText(/Olá, Maria! :]/i)).toBeInTheDocument();
   });
 
+  it("renders the user's name with a different case", () => {
+    render(<DashboardHeader name="joão" />);
+    expect(screen.getByText(/Olá, joão! :]/i)).toBeInTheDocument();
+  });
+
   it("renders the welcome message", () => {
     render(<DashboardHeader name="João" />);
     expect(screen.getByText(/Bem vinda de volta!/i)).toBeInTheDocument();
   });
+
   it("renders the formatted current date in pt-BR", () => {
     render(<DashboardHeader name="Ana" />);
 
