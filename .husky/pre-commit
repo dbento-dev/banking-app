@@ -1,6 +1,3 @@
-#!/bin/sh
-. "$(dirname "$0")/_/husky.sh"
-
 echo 'Check for linting errors and run tests before commiting...'
 
 npx lint-staged || (echo 'Liting erros or tests failed. Please fix them before commiting.' && exit 1)
