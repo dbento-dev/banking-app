@@ -15,14 +15,14 @@ describe("DashboardHeader", () => {
   });
   it("renders the formatted current date in pt-BR", () => {
     render(<DashboardHeader name="Ana" />);
+
     const currentDate = new Date();
-    const weekday = currentDate.toLocaleDateString("pt-BR", {
+    const formattedDate = new Intl.DateTimeFormat("pt-BR", {
       weekday: "long",
-    });
-    const day = String(currentDate.getDate()).padStart(2, "0");
-    const month = String(currentDate.getMonth() + 1).padStart(2, "0");
-    const year = currentDate.getFullYear();
-    const formattedDate = `${weekday}, ${day}/${month}/${year}`;
+      year: "numeric",
+      month: "numeric",
+      day: "numeric",
+    }).format(currentDate);
 
     expect(screen.getByText(formattedDate)).toBeInTheDocument();
   });
