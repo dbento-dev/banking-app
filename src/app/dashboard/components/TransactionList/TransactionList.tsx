@@ -1,11 +1,14 @@
 import TransactionItem from "@/app/dashboard/components/TransactionItem/TransactionItem";
+import { User } from "@/types/userEntities";
 import { Transaction } from "@/types/transactionEntities";
 import { WalletIcon } from "lucide-react";
 
 interface TransactionListProps {
+  user: User | null;
   transactions: Transaction[];
 }
 export default function TransactionList({
+  user,
   transactions,
 }: TransactionListProps) {
   if (!transactions || transactions.length === 0) {
@@ -55,6 +58,7 @@ export default function TransactionList({
                 {transactions.map((transaction) => (
                   <TransactionItem
                     transaction={transaction}
+                    user={user}
                     key={transaction.id}
                   />
                 ))}

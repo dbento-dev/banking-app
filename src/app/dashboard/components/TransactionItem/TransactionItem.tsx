@@ -1,13 +1,80 @@
 "use client";
+import { useState } from "react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { User } from "@/types/userEntities";
+import { deleteTransaction } from "@/api/transactionService";
+import { DeleteModal } from "@/app/dashboard/components/DeleteModal/DeleteModal";
 import IconArrowPositive from "@/assets/icons/icon-arrow-negative.svg";
 import IconArrowNegative from "@/assets/icons/icon-arrow-positive.svg";
+import IconEdit from "@/assets/icons/icon-edit.svg";
+import IconDelete from "@/assets/icons/icon-delete.svg";
+
 import { Transaction } from "@/types/transactionEntities";
 import { formatDisplayDateWithYear } from "@/utils/date/formatDisplayDate";
+import { toast } from "sonner";
+
+interface DeleteTransactionProps {
+  transactionId: string;
+  accountId: string;
+}
 
 interface TransactionItemProps {
+  user: User | null;
   transaction: Transaction;
 }
-export default function TransactionItem({ transaction }: TransactionItemProps) {
+
+export default function TransactionItem({
+  user,
+  transaction,
+}: TransactionItemProps) {
+  const queryClient = useQueryClient();
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+  const [selectedItem, setSelectedItem] = useState<Transaction | null>(null);
+
+  const { mutateAsync: requestDeleteTransaction, isPending } = useMutation({
+    mutationFn: (props: DeleteTransactionProps) =>
+      deleteTransaction(props.transactionId),
+
+    onSuccess: (data, props) => {
+      queryClient.invalidateQueries({
+        queryKey: ["transactions", props.accountId],
+      });
+
+      queryClient.invalidateQueries({
+        queryKey: ["account", user?.id],
+      });
+
+      handleCloseDeleteModal();
+      toast.success("Transação excluída com sucesso!");
+    },
+    onError: (err: Error) => {
+      toast.error(
+        `Falha ao excluir transação: ${err.message || "Erro desconhecido"}`
+      );
+
+      handleCloseDeleteModal();
+    },
+  });
+
+  const handleOpenDeleteModal = (item: Transaction) => {
+    setSelectedItem(item);
+    setIsModalOpen(true);
+  };
+
+  const handleCloseDeleteModal = () => {
+    setIsModalOpen(false);
+    setSelectedItem(null);
+  };
+
+  const handleConfirmDeleteItem = () => {
+    if (selectedItem) {
+      requestDeleteTransaction({
+        transactionId: selectedItem.id,
+        accountId: selectedItem.account_id,
+      });
+    }
+  };
+
   return (
     <li
       key={transaction.id}
@@ -17,6 +84,8 @@ export default function TransactionItem({ transaction }: TransactionItemProps) {
           : "hover:bg-red-50"
       }`}
     >
+      {isPending && <p>Deletando transação...</p>}
+
       <div className="flex items-center gap-3">
         {transaction.category_name === "Entrada" ? (
           <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#E8FFF3] text-[#14AE5C]">
@@ -48,6 +117,26 @@ export default function TransactionItem({ transaction }: TransactionItemProps) {
         {transaction.category_name === "Entrada" ? "+" : "-"} R${" "}
         {transaction.amount.replace(".", ",")}
       </span>
+
+      <div className="flex items-center gap-2">
+        <div className="mr-1 flex h-5 w-5 cursor-pointer items-center justify-center rounded-full bg-[#2d68fd44] text-[#2D68FD] transition-colors duration-200 ease-in-out hover:bg-[#2d68fd66]">
+          <IconEdit className="size-[12px] stroke-current" />
+        </div>
+        <div
+          onClick={() => handleOpenDeleteModal(transaction)}
+          title={`Excluir ${transaction.description}`}
+          className="flex h-5 w-5 cursor-pointer items-center justify-center rounded-full bg-[#ed4a4d4b] text-[#ED4A4C] transition-colors duration-200 ease-in-out hover:bg-[#ed4a4d70]"
+        >
+          <IconDelete className="size-[12px] stroke-current" />
+        </div>
+      </div>
+
+      <DeleteModal
+        isOpen={isModalOpen}
+        onClose={handleCloseDeleteModal}
+        onConfirmDelete={handleConfirmDeleteItem}
+        itemName={selectedItem?.description}
+      />
     </li>
   );
 }

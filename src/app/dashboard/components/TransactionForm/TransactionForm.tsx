@@ -4,6 +4,7 @@ import { createTransaction } from "@/api/transactionService";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { toast } from "sonner";
 import {
   Select,
   SelectContent,
@@ -49,7 +50,9 @@ export default function TransactionForm({
       setFormState({ categoryId: "", amount: "", description: "" });
     },
     onError: (err) => {
-      console.error("Erro ao criar transação:", err);
+      toast.error(
+        `Falha ao incluir transação: ${err.message || "Erro desconhecido"}`
+      );
     },
   });
   const handleSubmit = async (e: React.FormEvent) => {
