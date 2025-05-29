@@ -13,7 +13,7 @@ export async function getTransactionsByAccountId(
 ): Promise<Transaction[]> {
   try {
     const response = await apiFetch(
-      `${TRANSACTION_ENDPOINT}/findByAccountId?accountId=${encodeURIComponent(accountId)}`
+      `${TRANSACTION_ENDPOINT}/findByAccountId?accountId=${encodeURIComponent(accountId)}&orderBy=desc`
     );
     return response.json();
   } catch (error) {
@@ -57,6 +57,25 @@ export async function getTransactionCategories(): Promise<
       error instanceof Error
         ? error.message
         : "Erro desconhecido ao buscar categorias de transação."
+    );
+  }
+}
+
+export async function deleteTransaction(
+  transactionId: string
+): Promise<true | false | null> {
+  try {
+    await apiFetch(`${TRANSACTION_ENDPOINT}/${transactionId}`, {
+      method: "DELETE",
+    });
+
+    return true;
+  } catch (error) {
+    console.error("Falha ao deletar transação:", error);
+    throw new Error(
+      error instanceof Error
+        ? error.message
+        : "Erro desconhecido ao deletar transação."
     );
   }
 }

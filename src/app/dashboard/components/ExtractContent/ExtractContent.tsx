@@ -51,7 +51,10 @@ export default function ExtractContent({
         </div>
       </div>
       <div className="flex-1 overflow-y-auto">
-        <TransactionList transactions={transactions || []} />
+        <TransactionList
+          user={user || null}
+          transactions={transactions || []}
+        />
       </div>
     </div>
   );
