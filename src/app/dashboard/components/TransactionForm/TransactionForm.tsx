@@ -1,10 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { useMutation } from "@tanstack/react-query";
 import { toast } from "sonner";
-
-import { createTransaction } from "@/api/transactionService";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -16,9 +13,12 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useTransactionCategoriesData } from "@/hooks/useTransactionCategoriesData";
+import { useCreateTransaction } from "@/hooks/useCreateTransaction";
+import { useEditTransaction } from "@/hooks/useEditTransaction";
 import {
   Transaction,
   TransactionCreate,
+  TransactionEdit,
   TransactionFormState,
 } from "@/types/transactionEntities";
 import { formatCurrency } from "@/utils/currency/formatCurrency";
@@ -30,22 +30,57 @@ interface TransactionFormProps {
   onCancelEdit?: () => void;
 }
 
+const EMPTY_FORM_STATE: TransactionFormState = {
+  categoryId: "",
+  amount: "",
+  description: "",
+};
+
 export default function TransactionForm({
   accountId,
-  onSuccess,
+  onSuccess: onFormSuccess,
   transactionToEdit,
   onCancelEdit,
 }: TransactionFormProps) {
   const { transactionCategories, isLoading: isLoadingCategories } =
     useTransactionCategoriesData();
 
-  const [formState, setFormState] = useState<TransactionFormState>({
-    categoryId: "",
-    amount: "",
-    description: "",
-  });
+  const [formState, setFormState] =
+    useState<TransactionFormState>(EMPTY_FORM_STATE);
+  const [initialEditState, setInitialEditState] =
+    useState<TransactionFormState | null>(null);
 
   const isEditMode = !!transactionToEdit;
+
+  const handleMutationSuccess = () => {
+    setFormState(EMPTY_FORM_STATE);
+    setInitialEditState(null);
+    if (onFormSuccess) onFormSuccess();
+  };
+
+  const {
+    mutateAsync: requestCreateTransaction,
+    isPending: isCreating,
+    isError: isCreateError,
+    reset: resetCreateMutation,
+  } = useCreateTransaction({ onSuccess: handleMutationSuccess });
+
+  const {
+    mutateAsync: requestEditTransaction,
+    isPending: isEditing,
+    isError: isEditError,
+    reset: resetEditMutation,
+  } = useEditTransaction({ onSuccess: handleMutationSuccess });
+
+  const isPending = isCreating || isEditing;
+  const hasError = isCreateError || isEditError;
+
+  useEffect(() => {
+    return () => {
+      resetCreateMutation();
+      resetEditMutation();
+    };
+  }, [resetCreateMutation, resetEditMutation]);
 
   useEffect(() => {
     if (isEditMode && transactionToEdit) {
@@ -59,60 +94,67 @@ export default function TransactionForm({
         amountInCentsString = String(Math.round(numericValue * 100));
       }
 
-      setFormState({
+      const initialData = {
         categoryId: transactionToEdit.category_id || "",
         amount: formatCurrency(amountInCentsString) || "",
         description: transactionToEdit.description || "",
-      });
-    } else {
-      setFormState({ categoryId: "", amount: "", description: "" });
+      };
+      setFormState(initialData);
+      setInitialEditState(initialData);
+      resetCreateMutation();
+    } else if (!isEditMode) {
+      setFormState(EMPTY_FORM_STATE);
+      setInitialEditState(null);
+      resetEditMutation();
     }
-  }, [transactionToEdit, isEditMode]);
+  }, [transactionToEdit, isEditMode, resetCreateMutation, resetEditMutation]);
 
-  const {
-    mutateAsync: requestCreateTransaction,
-    isPending,
-    isError,
-  } = useMutation({
-    mutationFn: (transactionData: TransactionCreate) =>
-      createTransaction(transactionData),
-    onSuccess: () => {
-      toast.success("Transação incluída com sucesso!");
-      if (onSuccess) onSuccess();
-      setFormState({ categoryId: "", amount: "", description: "" });
-    },
-    onError: (err) => {
-      toast.error(
-        `Falha ao incluir transação: ${err.message || "Erro desconhecido"}`
-      );
-    },
-  });
+  const hasFormChanged = () => {
+    if (!isEditMode || !initialEditState) {
+      return false;
+    }
+    return (
+      formState.categoryId !== initialEditState.categoryId ||
+      formState.amount !== initialEditState.amount ||
+      formState.description !== initialEditState.description
+    );
+  };
+
+  const canSubmit = formState.categoryId && formState.amount;
+  const disableSubmitButton =
+    !canSubmit || isPending || (isEditMode && !hasFormChanged());
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (disableSubmitButton) return;
+
     if (!formState.categoryId || !formState.amount) return;
 
+    const parsedAmount = parseFloat(
+      formState.amount.replace(/\./g, "").replace(",", ".")
+    );
+
+    if (isNaN(parsedAmount)) {
+      toast.error("Valor inválido.");
+      return;
+    }
+
     if (isEditMode && transactionToEdit) {
-      // const updatedData = {
-      // monte o objeto de dados para atualização aqui
-      // amount: parseFloat(
-      // formState.amount.replace(/\./g, "").replace(",", ".")
-      // ),
-      // description: formState.description,
-      // categoryId: formState.categoryId,
-      // };
-      // await requestUpdateTransaction({ transactionId: transactionToEdit.id, data: updatedData });
-      toast.info("Funcionalidade de editar transação a ser implementada.");
-      if (onSuccess) onSuccess();
+      const updatedData: TransactionEdit = {
+        id: transactionToEdit.id,
+        amount: parsedAmount,
+        description: formState.description,
+        categoryId: formState.categoryId,
+        transactionDate: new Date().toISOString(),
+      };
+      await requestEditTransaction(updatedData);
     } else {
       const transactionData: TransactionCreate = {
         accountId,
-        amount: parseFloat(
-          formState.amount.replace(/\./g, "").replace(",", ".")
-        ),
+        amount: parsedAmount,
         description: formState.description,
-        transactionDate: new Date().toISOString(),
         categoryId: formState.categoryId,
+        transactionDate: new Date().toISOString(),
       };
       await requestCreateTransaction(transactionData);
     }
@@ -126,6 +168,7 @@ export default function TransactionForm({
     }
     setFormState((prev) => ({ ...prev, amount: formatCurrency(value) }));
   };
+
   const handleChange = (field: keyof TransactionFormState, value: string) => {
     setFormState((prev) => ({ ...prev, [field]: value }));
   };
@@ -139,9 +182,10 @@ export default function TransactionForm({
         {isEditMode ? "Editar Transação" : "Nova Transação"}
       </h3>
 
-      {isError && (
+      {hasError && (
         <div className="mb-4 rounded-md bg-red-100 p-3 text-red-700">
-          Ocorreu um erro ao criar a transação. Por favor, tente novamente.
+          Ocorreu um erro ao {isEditMode ? "editar" : "criar"} a transação. Por
+          favor, tente novamente.
         </div>
       )}
 
@@ -156,7 +200,7 @@ export default function TransactionForm({
           <Select
             value={formState.categoryId}
             onValueChange={(value) => handleChange("categoryId", value)}
-            disabled={isLoadingCategories}
+            disabled={isLoadingCategories || isPending}
           >
             <SelectTrigger
               id="transaction-category"
@@ -225,18 +269,24 @@ export default function TransactionForm({
           type="submit"
           className="w-full bg-[var(--color-secondary)] text-[var(--color-on-secondary)] hover:bg-[var(--color-secondary-hover)]"
           size="lg"
-          disabled={!formState.categoryId || !formState.amount || isPending}
+          disabled={disableSubmitButton}
         >
-          {isPending ? "Processando..." : "Concluir Transação"}
+          {isPending
+            ? "Processando..."
+            : isEditMode
+              ? "Salvar Alterações"
+              : "Concluir Transação"}
         </Button>
 
         {isEditMode && onCancelEdit && (
           <Button
             type="button"
             variant="outline"
-            onClick={onCancelEdit}
+            onClick={() => {
+              if (onCancelEdit) onCancelEdit();
+            }}
             className="w-full"
-            disabled={isPending /* || isUpdatePending */}
+            disabled={isPending}
           >
             Cancelar Edição
           </Button>
