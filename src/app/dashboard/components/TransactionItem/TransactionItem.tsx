@@ -86,7 +86,7 @@ export default function TransactionItem({
     >
       {isPending && <p>Deletando transação...</p>}
 
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-6">
         {transaction.category_name === "Entrada" ? (
           <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#E8FFF3] text-[#14AE5C]">
             <IconArrowPositive className="size-[14px] stroke-current" />
@@ -107,27 +107,29 @@ export default function TransactionItem({
         </div>
       </div>
 
-      <span
-        className={`text-sm font-semibold ${
-          transaction.category_name === "Entrada"
-            ? "text-[#14AE5C]"
-            : "text-[#ED4A4C]"
-        }`}
-      >
-        {transaction.category_name === "Entrada" ? "+" : "-"} R${" "}
-        {transaction.amount.replace(".", ",")}
-      </span>
-
-      <div className="flex items-center gap-2">
-        <div className="mr-1 flex h-5 w-5 cursor-pointer items-center justify-center rounded-full bg-[#2d68fd44] text-[#2D68FD] transition-colors duration-200 ease-in-out hover:bg-[#2d68fd66]">
-          <IconEdit className="size-[12px] stroke-current" />
-        </div>
-        <div
-          onClick={() => handleOpenDeleteModal(transaction)}
-          title={`Excluir ${transaction.description}`}
-          className="flex h-5 w-5 cursor-pointer items-center justify-center rounded-full bg-[#ed4a4d4b] text-[#ED4A4C] transition-colors duration-200 ease-in-out hover:bg-[#ed4a4d70]"
+      <div className="flex items-center gap-6">
+        <span
+          className={`text-sm font-semibold ${
+            transaction.category_name === "Entrada"
+              ? "text-[#14AE5C]"
+              : "text-[#ED4A4C]"
+          }`}
         >
-          <IconDelete className="size-[12px] stroke-current" />
+          {transaction.category_name === "Entrada" ? "+" : "-"} R${" "}
+          {transaction.amount.replace(".", ",")}
+        </span>
+
+        <div className="flex items-center gap-2">
+          <div className="mr-1 flex h-5 w-5 cursor-pointer items-center justify-center rounded-full bg-[#2d68fd44] text-[#2D68FD] transition-colors duration-200 ease-in-out hover:bg-[#2d68fd66]">
+            <IconEdit className="size-[12px] stroke-current" />
+          </div>
+          <div
+            onClick={() => handleOpenDeleteModal(transaction)}
+            title={`Excluir ${transaction.description}`}
+            className="flex h-5 w-5 cursor-pointer items-center justify-center rounded-full bg-[#ed4a4d4b] text-[#ED4A4C] transition-colors duration-200 ease-in-out hover:bg-[#ed4a4d70]"
+          >
+            <IconDelete className="size-[12px] stroke-current" />
+          </div>
         </div>
       </div>
 

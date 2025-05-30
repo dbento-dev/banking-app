@@ -29,9 +29,10 @@ export default function Home() {
     switch (section) {
       case "inicio":
         return (
-          <div className="mx-auto flex w-full max-w-[1440px] flex-col gap-4 max-md:pt-20">
+          // "mx-auto flex w-full max-w-[1440px] flex-col gap-4 max-md:pt-20"
+          <div className="flex w-full flex-col gap-4 max-md:pt-20">
             <div className="flex flex-col gap-6 xl:flex-row">
-              <div className="flex h-full flex-grow flex-col rounded-xl bg-[var(--surface)] px-4 py-8 sm:px-8 md:px-10 lg:px-20">
+              <div className="flex h-full w-full flex-grow flex-col rounded-xl bg-[var(--surface)] px-4 py-8 sm:px-8 md:px-10 lg:px-20">
                 {isLoadingUser && (
                   <p className="text-center">
                     Carregando informações do usuário...
@@ -58,19 +59,17 @@ export default function Home() {
                     )}
                   </div>
                   {account && (
-                    <div className="w-full">
-                      <TransactionForm
-                        accountId={account.id}
-                        onSuccess={() => {
-                          invalidateAccountQuery();
-                          invalidateTransactionsQuery();
-                        }}
-                      />
-                    </div>
+                    <TransactionForm
+                      accountId={account.id}
+                      onSuccess={() => {
+                        invalidateAccountQuery();
+                        invalidateTransactionsQuery();
+                      }}
+                    />
                   )}
                 </div>
               </div>
-              <div className="w-full rounded-xl bg-[var(--surface)] xl:w-full">
+              <div className="flex flex-1 rounded-xl bg-[var(--surface)]">
                 <ExtractContent
                   transactions={transactions}
                   account={account}
