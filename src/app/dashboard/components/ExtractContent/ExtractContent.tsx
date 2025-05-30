@@ -2,6 +2,7 @@
 
 import TransactionList from "@/app/dashboard/components/TransactionList/TransactionList";
 import IconAvatar from "@/assets/icons/icon-avatar.svg";
+import Loader from "@/components/ui/loader";
 import { Account } from "@/types/accountEntities";
 import { Transaction } from "@/types/transactionEntities";
 import { User } from "@/types/userEntities";
@@ -21,10 +22,8 @@ export default function ExtractContent({
 }: ExtractContentProps) {
   if (!user || !account || !transactions) {
     return (
-      <div className="flex h-full flex-col items-center justify-center">
-        <p className="text-center text-sm text-[var(--color-text-secondary)]">
-          Carregando informações...
-        </p>
+      <div className="px-12">
+        <Loader />
       </div>
     );
   }

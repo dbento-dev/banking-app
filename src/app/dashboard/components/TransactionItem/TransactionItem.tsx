@@ -1,14 +1,15 @@
 "use client";
-import { useState } from "react";
-import { User } from "@/types/userEntities";
-import { useDeleteTransaction } from "@/hooks/useDeleteTransaction";
 import { DeleteModal } from "@/app/dashboard/components/DeleteModal/DeleteModal";
-import { Transaction } from "@/types/transactionEntities";
-import { formatDisplayDateWithYear } from "@/utils/date/formatDisplayDate";
 import IconArrowPositive from "@/assets/icons/icon-arrow-negative.svg";
 import IconArrowNegative from "@/assets/icons/icon-arrow-positive.svg";
-import IconEdit from "@/assets/icons/icon-edit.svg";
 import IconDelete from "@/assets/icons/icon-delete.svg";
+import IconEdit from "@/assets/icons/icon-edit.svg";
+import Loader from "@/components/ui/loader";
+import { useDeleteTransaction } from "@/hooks/useDeleteTransaction";
+import { Transaction } from "@/types/transactionEntities";
+import { User } from "@/types/userEntities";
+import { formatDisplayDateWithYear } from "@/utils/date/formatDisplayDate";
+import { useState } from "react";
 
 interface TransactionItemProps {
   user: User | null;
@@ -67,7 +68,7 @@ export default function TransactionItem({
           : "hover:bg-red-50"
       }`}
     >
-      {isPending && <p>Deletando transação...</p>}
+      {isPending && <Loader />}
 
       <div className="flex items-center gap-6">
         {transaction.category_name === "Entrada" ? (

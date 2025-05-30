@@ -1,6 +1,6 @@
 import TransactionItem from "@/app/dashboard/components/TransactionItem/TransactionItem";
-import { User } from "@/types/userEntities";
 import { Transaction } from "@/types/transactionEntities";
+import { User } from "@/types/userEntities";
 import { WalletIcon } from "lucide-react";
 
 interface TransactionListProps {
