@@ -54,7 +54,7 @@ export default function TransactionList({
                   {groupName}
                 </span>
               </div>
-              <ul className="space-y-4">
+              <ul className="w-full space-y-4 sm:min-w-sm">
                 {transactions.map((transaction) => (
                   <TransactionItem
                     transaction={transaction}

@@ -27,7 +27,7 @@ export default function ExtractContent({
     );
   }
   return (
-    <div className="flex h-full flex-col px-4 py-6 md:p-6">
+    <div className="flex h-full flex-1 flex-col px-4 py-6 md:p-6">
       <div className="mb-6 flex flex-row items-center justify-between border-b border-[var(--color-border)] pb-4">
         <div className="flex items-center">
           {user.avatar_url ? (
