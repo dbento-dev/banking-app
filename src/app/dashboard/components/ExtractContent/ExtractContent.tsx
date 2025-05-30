@@ -11,11 +11,13 @@ interface ExtractContentProps {
   user: User | null;
   account: Account | null;
   transactions: Transaction[] | null;
+  onSetEditTransaction: (transaction: Transaction) => void;
 }
 export default function ExtractContent({
   account,
   user,
   transactions,
+  onSetEditTransaction,
 }: ExtractContentProps) {
   if (!user || !account || !transactions) {
     return (
@@ -54,6 +56,7 @@ export default function ExtractContent({
         <TransactionList
           user={user || null}
           transactions={transactions || []}
+          onSetEditTransaction={onSetEditTransaction}
         />
       </div>
     </div>

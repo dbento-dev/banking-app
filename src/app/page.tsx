@@ -4,10 +4,12 @@ import BalanceCard from "@/app/dashboard/components/BalanceCard/BalanceCard";
 import DashboardHeader from "@/app/dashboard/components/DashboardHeader/DashboardHeader";
 import ExtractContent from "@/app/dashboard/components/ExtractContent/ExtractContent";
 import TransactionForm from "@/app/dashboard/components/TransactionForm/TransactionForm";
+import { Transaction } from "@/types/transactionEntities";
 import { useAccountData } from "@/hooks/useAccountData";
 import { useTransactionData } from "@/hooks/useTransactionsData";
 import { useUserData } from "@/hooks/useUserData";
 import { useSearchParams } from "next/navigation";
+import { useState } from "react";
 
 export default function Home() {
   const searchParams = useSearchParams();
@@ -24,6 +26,17 @@ export default function Home() {
   const { transactions, invalidateTransactionsQuery } = useTransactionData(
     account?.id
   );
+
+  const [transactionToEdit, setTransactionToEdit] =
+    useState<Transaction | null>(null);
+
+  const handleSetTransactionToEdit = (transaction: Transaction) => {
+    setTransactionToEdit(transaction);
+  };
+
+  const handleClearTransactionToEdit = () => {
+    setTransactionToEdit(null);
+  };
 
   const renderMainContent = (section: string | null) => {
     switch (section) {
@@ -61,10 +74,13 @@ export default function Home() {
                   {account && (
                     <TransactionForm
                       accountId={account.id}
+                      transactionToEdit={transactionToEdit}
                       onSuccess={() => {
                         invalidateAccountQuery();
                         invalidateTransactionsQuery();
+                        handleClearTransactionToEdit();
                       }}
+                      onCancelEdit={handleClearTransactionToEdit}
                     />
                   )}
                 </div>
@@ -74,6 +90,7 @@ export default function Home() {
                   transactions={transactions}
                   account={account}
                   user={user}
+                  onSetEditTransaction={handleSetTransactionToEdit}
                 />
               </div>
             </div>

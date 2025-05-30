@@ -6,10 +6,12 @@ import { WalletIcon } from "lucide-react";
 interface TransactionListProps {
   user: User | null;
   transactions: Transaction[];
+  onSetEditTransaction: (transaction: Transaction) => void;
 }
 export default function TransactionList({
   user,
   transactions,
+  onSetEditTransaction,
 }: TransactionListProps) {
   if (!transactions || transactions.length === 0) {
     return (
@@ -60,6 +62,7 @@ export default function TransactionList({
                     transaction={transaction}
                     user={user}
                     key={transaction.id}
+                    onSetEditTransaction={onSetEditTransaction}
                   />
                 ))}
               </ul>

@@ -1,10 +1,13 @@
 "use client";
 
+import React, { useEffect, useState } from "react";
+import { useMutation } from "@tanstack/react-query";
+import { toast } from "sonner";
+
 import { createTransaction } from "@/api/transactionService";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { toast } from "sonner";
 import {
   Select,
   SelectContent,
@@ -14,20 +17,24 @@ import {
 } from "@/components/ui/select";
 import { useTransactionCategoriesData } from "@/hooks/useTransactionCategoriesData";
 import {
+  Transaction,
   TransactionCreate,
   TransactionFormState,
 } from "@/types/transactionEntities";
 import { formatCurrency } from "@/utils/currency/formatCurrency";
-import { useMutation } from "@tanstack/react-query";
-import React, { useState } from "react";
 
 interface TransactionFormProps {
   accountId: string;
   onSuccess?: () => void;
+  transactionToEdit?: Transaction | null;
+  onCancelEdit?: () => void;
 }
+
 export default function TransactionForm({
   accountId,
   onSuccess,
+  transactionToEdit,
+  onCancelEdit,
 }: TransactionFormProps) {
   const { transactionCategories, isLoading: isLoadingCategories } =
     useTransactionCategoriesData();
@@ -38,6 +45,30 @@ export default function TransactionForm({
     description: "",
   });
 
+  const isEditMode = !!transactionToEdit;
+
+  useEffect(() => {
+    if (isEditMode && transactionToEdit) {
+      let amountInCentsString = "";
+
+      const numericValue = parseFloat(
+        transactionToEdit.amount.replace(",", ".")
+      );
+
+      if (!isNaN(numericValue)) {
+        amountInCentsString = String(Math.round(numericValue * 100));
+      }
+
+      setFormState({
+        categoryId: transactionToEdit.category_id || "",
+        amount: formatCurrency(amountInCentsString) || "",
+        description: transactionToEdit.description || "",
+      });
+    } else {
+      setFormState({ categoryId: "", amount: "", description: "" });
+    }
+  }, [transactionToEdit, isEditMode]);
+
   const {
     mutateAsync: requestCreateTransaction,
     isPending,
@@ -46,6 +77,7 @@ export default function TransactionForm({
     mutationFn: (transactionData: TransactionCreate) =>
       createTransaction(transactionData),
     onSuccess: () => {
+      toast.success("Transação incluída com sucesso!");
       if (onSuccess) onSuccess();
       setFormState({ categoryId: "", amount: "", description: "" });
     },
@@ -55,18 +87,35 @@ export default function TransactionForm({
       );
     },
   });
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formState.categoryId || !formState.amount) return;
 
-    const transactionData: TransactionCreate = {
-      accountId,
-      amount: parseFloat(formState.amount.replace(".", "").replace(",", ".")),
-      description: formState.description,
-      transactionDate: new Date().toISOString(),
-      categoryId: formState.categoryId,
-    };
-    await requestCreateTransaction(transactionData);
+    if (isEditMode && transactionToEdit) {
+      // const updatedData = {
+      // monte o objeto de dados para atualização aqui
+      // amount: parseFloat(
+      // formState.amount.replace(/\./g, "").replace(",", ".")
+      // ),
+      // description: formState.description,
+      // categoryId: formState.categoryId,
+      // };
+      // await requestUpdateTransaction({ transactionId: transactionToEdit.id, data: updatedData });
+      toast.info("Funcionalidade de editar transação a ser implementada.");
+      if (onSuccess) onSuccess();
+    } else {
+      const transactionData: TransactionCreate = {
+        accountId,
+        amount: parseFloat(
+          formState.amount.replace(/\./g, "").replace(",", ".")
+        ),
+        description: formState.description,
+        transactionDate: new Date().toISOString(),
+        categoryId: formState.categoryId,
+      };
+      await requestCreateTransaction(transactionData);
+    }
   };
 
   const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -87,7 +136,7 @@ export default function TransactionForm({
       className="w-full rounded-xl bg-white p-4 shadow-md sm:p-6"
     >
       <h3 className="mb-6 text-base font-semibold text-[var(--color-text)] sm:text-lg">
-        Nova Transação
+        {isEditMode ? "Editar Transação" : "Nova Transação"}
       </h3>
 
       {isError && (
@@ -102,7 +151,7 @@ export default function TransactionForm({
             htmlFor="transaction-category"
             className="text-sm text-[var(--color-text-secondary)]"
           >
-            Tipo de Transação
+            {isEditMode ? "Alterar Tipo de Transação" : "Tipo de Transação"}
           </Label>
           <Select
             value={formState.categoryId}
@@ -138,7 +187,7 @@ export default function TransactionForm({
             htmlFor="transaction-value"
             className="text-sm text-[var(--color-text-secondary)]"
           >
-            Valor
+            {isEditMode ? "Novo Valor" : "Valor"}
           </Label>
           <div className="relative">
             <span className="absolute top-1/2 left-3 -translate-y-1/2 text-sm text-[var(--color-text-secondary)]">
@@ -160,7 +209,7 @@ export default function TransactionForm({
             htmlFor="transaction-description"
             className="text-sm text-[var(--color-text-secondary)]"
           >
-            Descrição
+            {isEditMode ? "Nova Descrição" : "Descrição"}
           </Label>
           <Input
             type="text"
@@ -180,6 +229,18 @@ export default function TransactionForm({
         >
           {isPending ? "Processando..." : "Concluir Transação"}
         </Button>
+
+        {isEditMode && onCancelEdit && (
+          <Button
+            type="button"
+            variant="outline"
+            onClick={onCancelEdit}
+            className="w-full"
+            disabled={isPending /* || isUpdatePending */}
+          >
+            Cancelar Edição
+          </Button>
+        )}
       </div>
     </form>
   );
