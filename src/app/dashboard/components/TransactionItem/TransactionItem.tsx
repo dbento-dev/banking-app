@@ -1,60 +1,40 @@
 "use client";
-import { useState } from "react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { User } from "@/types/userEntities";
-import { deleteTransaction } from "@/api/transactionService";
 import { DeleteModal } from "@/app/dashboard/components/DeleteModal/DeleteModal";
 import IconArrowPositive from "@/assets/icons/icon-arrow-negative.svg";
 import IconArrowNegative from "@/assets/icons/icon-arrow-positive.svg";
-import IconEdit from "@/assets/icons/icon-edit.svg";
 import IconDelete from "@/assets/icons/icon-delete.svg";
-
+import IconEdit from "@/assets/icons/icon-edit.svg";
+import Loader from "@/components/ui/loader";
+import { useDeleteTransaction } from "@/hooks/useDeleteTransaction";
 import { Transaction } from "@/types/transactionEntities";
+import { User } from "@/types/userEntities";
 import { formatDisplayDateWithYear } from "@/utils/date/formatDisplayDate";
-import { toast } from "sonner";
-
-interface DeleteTransactionProps {
-  transactionId: string;
-  accountId: string;
-}
+import { useState } from "react";
 
 interface TransactionItemProps {
   user: User | null;
   transaction: Transaction;
+  onSetEditTransaction: (transaction: Transaction) => void;
 }
 
 export default function TransactionItem({
   user,
   transaction,
+  onSetEditTransaction,
 }: TransactionItemProps) {
-  const queryClient = useQueryClient();
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [selectedItem, setSelectedItem] = useState<Transaction | null>(null);
 
-  const { mutateAsync: requestDeleteTransaction, isPending } = useMutation({
-    mutationFn: (props: DeleteTransactionProps) =>
-      deleteTransaction(props.transactionId),
-
-    onSuccess: (data, props) => {
-      queryClient.invalidateQueries({
-        queryKey: ["transactions", props.accountId],
-      });
-
-      queryClient.invalidateQueries({
-        queryKey: ["account", user?.id],
-      });
-
-      handleCloseDeleteModal();
-      toast.success("Transação excluída com sucesso!");
-    },
-    onError: (err: Error) => {
-      toast.error(
-        `Falha ao excluir transação: ${err.message || "Erro desconhecido"}`
-      );
-
-      handleCloseDeleteModal();
-    },
-  });
+  const { mutateAsync: requestDeleteTransaction, isPending } =
+    useDeleteTransaction({
+      userId: user?.id,
+      onSuccessCallback: () => {
+        handleCloseDeleteModal();
+      },
+      onErrorCallback: () => {
+        handleCloseDeleteModal();
+      },
+    });
 
   const handleOpenDeleteModal = (item: Transaction) => {
     setSelectedItem(item);
@@ -75,6 +55,10 @@ export default function TransactionItem({
     }
   };
 
+  const handleEditClick = () => {
+    onSetEditTransaction(transaction);
+  };
+
   return (
     <li
       key={transaction.id}
@@ -84,7 +68,7 @@ export default function TransactionItem({
           : "hover:bg-red-50"
       }`}
     >
-      {isPending && <p>Deletando transação...</p>}
+      {isPending && <Loader />}
 
       <div className="flex items-center gap-6">
         {transaction.category_name === "Entrada" ? (
@@ -119,7 +103,11 @@ export default function TransactionItem({
           {transaction.amount.replace(".", ",")}
         </span>
 
-        <div className="flex items-center gap-2">
+        <div
+          onClick={handleEditClick}
+          title={`Editar ${transaction.description}`}
+          className="flex items-center gap-2"
+        >
           <div className="mr-1 flex h-5 w-5 cursor-pointer items-center justify-center rounded-full bg-[#2d68fd44] text-[#2D68FD] transition-colors duration-200 ease-in-out hover:bg-[#2d68fd66]">
             <IconEdit className="size-[12px] stroke-current" />
           </div>

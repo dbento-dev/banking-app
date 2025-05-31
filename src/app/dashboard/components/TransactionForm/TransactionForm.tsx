@@ -1,10 +1,8 @@
 "use client";
 
-import { createTransaction } from "@/api/transactionService";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { toast } from "sonner";
 import {
   Select,
   SelectContent,
@@ -12,61 +10,154 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useCreateTransaction } from "@/hooks/useCreateTransaction";
+import { useEditTransaction } from "@/hooks/useEditTransaction";
 import { useTransactionCategoriesData } from "@/hooks/useTransactionCategoriesData";
 import {
+  Transaction,
   TransactionCreate,
+  TransactionEdit,
   TransactionFormState,
 } from "@/types/transactionEntities";
 import { formatCurrency } from "@/utils/currency/formatCurrency";
-import { useMutation } from "@tanstack/react-query";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { toast } from "sonner";
 
 interface TransactionFormProps {
   accountId: string;
   onSuccess?: () => void;
+  transactionToEdit?: Transaction | null;
+  onCancelEdit?: () => void;
 }
+
+const EMPTY_FORM_STATE: TransactionFormState = {
+  categoryId: "",
+  amount: "",
+  description: "",
+};
+
 export default function TransactionForm({
   accountId,
-  onSuccess,
+  onSuccess: onFormSuccess,
+  transactionToEdit,
+  onCancelEdit,
 }: TransactionFormProps) {
   const { transactionCategories, isLoading: isLoadingCategories } =
     useTransactionCategoriesData();
 
-  const [formState, setFormState] = useState<TransactionFormState>({
-    categoryId: "",
-    amount: "",
-    description: "",
-  });
+  const [formState, setFormState] =
+    useState<TransactionFormState>(EMPTY_FORM_STATE);
+  const [initialEditState, setInitialEditState] =
+    useState<TransactionFormState | null>(null);
+
+  const isEditMode = !!transactionToEdit;
+
+  const handleMutationSuccess = () => {
+    setFormState(EMPTY_FORM_STATE);
+    setInitialEditState(null);
+    if (onFormSuccess) onFormSuccess();
+  };
 
   const {
     mutateAsync: requestCreateTransaction,
-    isPending,
-    isError,
-  } = useMutation({
-    mutationFn: (transactionData: TransactionCreate) =>
-      createTransaction(transactionData),
-    onSuccess: () => {
-      if (onSuccess) onSuccess();
-      setFormState({ categoryId: "", amount: "", description: "" });
-    },
-    onError: (err) => {
-      toast.error(
-        `Falha ao incluir transação: ${err.message || "Erro desconhecido"}`
+    isPending: isCreating,
+    isError: isCreateError,
+    reset: resetCreateMutation,
+  } = useCreateTransaction({ onSuccess: handleMutationSuccess });
+
+  const {
+    mutateAsync: requestEditTransaction,
+    isPending: isEditing,
+    isError: isEditError,
+    reset: resetEditMutation,
+  } = useEditTransaction({ onSuccess: handleMutationSuccess });
+
+  const isPending = isCreating || isEditing;
+  const hasError = isCreateError || isEditError;
+
+  useEffect(() => {
+    return () => {
+      resetCreateMutation();
+      resetEditMutation();
+    };
+  }, [resetCreateMutation, resetEditMutation]);
+
+  useEffect(() => {
+    if (isEditMode && transactionToEdit) {
+      let amountInCentsString = "";
+
+      const numericValue = parseFloat(
+        transactionToEdit.amount.replace(",", ".")
       );
-    },
-  });
+
+      if (!isNaN(numericValue)) {
+        amountInCentsString = String(Math.round(numericValue * 100));
+      }
+
+      const initialData = {
+        categoryId: transactionToEdit.category_id || "",
+        amount: formatCurrency(amountInCentsString) || "",
+        description: transactionToEdit.description || "",
+      };
+      setFormState(initialData);
+      setInitialEditState(initialData);
+      resetCreateMutation();
+    } else if (!isEditMode) {
+      setFormState(EMPTY_FORM_STATE);
+      setInitialEditState(null);
+      resetEditMutation();
+    }
+  }, [transactionToEdit, isEditMode, resetCreateMutation, resetEditMutation]);
+
+  const hasFormChanged = () => {
+    if (!isEditMode || !initialEditState) {
+      return false;
+    }
+    return (
+      formState.categoryId !== initialEditState.categoryId ||
+      formState.amount !== initialEditState.amount ||
+      formState.description !== initialEditState.description
+    );
+  };
+
+  const canSubmit = formState.categoryId && formState.amount;
+  const disableSubmitButton =
+    !canSubmit || isPending || (isEditMode && !hasFormChanged());
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (disableSubmitButton) return;
+
     if (!formState.categoryId || !formState.amount) return;
 
-    const transactionData: TransactionCreate = {
-      accountId,
-      amount: parseFloat(formState.amount.replace(".", "").replace(",", ".")),
-      description: formState.description,
-      transactionDate: new Date().toISOString(),
-      categoryId: formState.categoryId,
-    };
-    await requestCreateTransaction(transactionData);
+    const parsedAmount = parseFloat(
+      formState.amount.replace(/\./g, "").replace(",", ".")
+    );
+
+    if (isNaN(parsedAmount)) {
+      toast.error("Valor inválido.");
+      return;
+    }
+
+    if (isEditMode && transactionToEdit) {
+      const updatedData: TransactionEdit = {
+        id: transactionToEdit.id,
+        amount: parsedAmount,
+        description: formState.description,
+        categoryId: formState.categoryId,
+        transactionDate: new Date().toISOString(),
+      };
+      await requestEditTransaction(updatedData);
+    } else {
+      const transactionData: TransactionCreate = {
+        accountId,
+        amount: parsedAmount,
+        description: formState.description,
+        categoryId: formState.categoryId,
+        transactionDate: new Date().toISOString(),
+      };
+      await requestCreateTransaction(transactionData);
+    }
   };
 
   const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -77,6 +168,7 @@ export default function TransactionForm({
     }
     setFormState((prev) => ({ ...prev, amount: formatCurrency(value) }));
   };
+
   const handleChange = (field: keyof TransactionFormState, value: string) => {
     setFormState((prev) => ({ ...prev, [field]: value }));
   };
@@ -87,12 +179,13 @@ export default function TransactionForm({
       className="w-full rounded-xl bg-white p-4 shadow-md sm:p-6"
     >
       <h3 className="mb-6 text-base font-semibold text-[var(--color-text)] sm:text-lg">
-        Nova Transação
+        {isEditMode ? "Editar Transação" : "Nova Transação"}
       </h3>
 
-      {isError && (
+      {hasError && (
         <div className="mb-4 rounded-md bg-red-100 p-3 text-red-700">
-          Ocorreu um erro ao criar a transação. Por favor, tente novamente.
+          Ocorreu um erro ao {isEditMode ? "editar" : "criar"} a transação. Por
+          favor, tente novamente.
         </div>
       )}
 
@@ -102,12 +195,12 @@ export default function TransactionForm({
             htmlFor="transaction-category"
             className="text-sm text-[var(--color-text-secondary)]"
           >
-            Tipo de Transação
+            {isEditMode ? "Alterar Tipo de Transação" : "Tipo de Transação"}
           </Label>
           <Select
             value={formState.categoryId}
             onValueChange={(value) => handleChange("categoryId", value)}
-            disabled={isLoadingCategories}
+            disabled={isLoadingCategories || isPending}
           >
             <SelectTrigger
               id="transaction-category"
@@ -138,7 +231,7 @@ export default function TransactionForm({
             htmlFor="transaction-value"
             className="text-sm text-[var(--color-text-secondary)]"
           >
-            Valor
+            {isEditMode ? "Novo Valor" : "Valor"}
           </Label>
           <div className="relative">
             <span className="absolute top-1/2 left-3 -translate-y-1/2 text-sm text-[var(--color-text-secondary)]">
@@ -160,7 +253,7 @@ export default function TransactionForm({
             htmlFor="transaction-description"
             className="text-sm text-[var(--color-text-secondary)]"
           >
-            Descrição
+            {isEditMode ? "Nova Descrição" : "Descrição"}
           </Label>
           <Input
             type="text"
@@ -176,10 +269,28 @@ export default function TransactionForm({
           type="submit"
           className="w-full bg-[var(--color-secondary)] text-[var(--color-on-secondary)] hover:bg-[var(--color-secondary-hover)]"
           size="lg"
-          disabled={!formState.categoryId || !formState.amount || isPending}
+          disabled={disableSubmitButton}
         >
-          {isPending ? "Processando..." : "Concluir Transação"}
+          {isPending
+            ? "Processando..."
+            : isEditMode
+              ? "Salvar Alterações"
+              : "Concluir Transação"}
         </Button>
+
+        {isEditMode && onCancelEdit && (
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => {
+              if (onCancelEdit) onCancelEdit();
+            }}
+            className="w-full"
+            disabled={isPending}
+          >
+            Cancelar Edição
+          </Button>
+        )}
       </div>
     </form>
   );

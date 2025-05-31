@@ -2,6 +2,7 @@ import {
   Transaction,
   TransactionCategory,
   TransactionCreate,
+  TransactionEdit,
 } from "@/types/transactionEntities";
 import { apiFetch } from "./client";
 
@@ -76,6 +77,28 @@ export async function deleteTransaction(
       error instanceof Error
         ? error.message
         : "Erro desconhecido ao deletar transação."
+    );
+  }
+}
+
+export async function editTransaction(
+  transactionData: TransactionEdit
+): Promise<Transaction> {
+  try {
+    const response = await apiFetch(
+      `${TRANSACTION_ENDPOINT}/${transactionData.id}`,
+      {
+        method: "PUT",
+        body: JSON.stringify(transactionData),
+      }
+    );
+    return response.json();
+  } catch (error) {
+    console.error("Falha ao editar transação:", error);
+    throw new Error(
+      error instanceof Error
+        ? error.message
+        : "Erro desconhecido ao editar transação."
     );
   }
 }
