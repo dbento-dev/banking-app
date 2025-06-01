@@ -5,6 +5,7 @@ import DashboardHeader from "@/app/dashboard/components/DashboardHeader/Dashboar
 import ExtractContent from "@/app/dashboard/components/ExtractContent/ExtractContent";
 import TransactionForm from "@/app/dashboard/components/TransactionForm/TransactionForm";
 import Loader from "@/components/ui/loader";
+import { UnderConstruction } from "@/components/ui/under-construction";
 import { useAccountData } from "@/hooks/useAccountData";
 import { useTransactionData } from "@/hooks/useTransactionsData";
 import { useUserData } from "@/hooks/useUserData";
@@ -43,9 +44,8 @@ export default function Home() {
     switch (section) {
       case "inicio":
         return (
-          // "mx-auto flex w-full max-w-[1440px] flex-col gap-4 max-md:pt-20"
           <div className="flex w-full flex-col gap-4 max-md:pt-20">
-            <div className="flex flex-col gap-6 xl:flex-row">
+            <div className="flex w-full flex-col gap-6 2xl:flex-row">
               <div className="flex h-full w-full flex-grow flex-col rounded-xl bg-[var(--surface)] px-4 py-8 sm:px-8 md:px-10 lg:px-20">
                 {isLoadingUser && <Loader />}
 
@@ -78,7 +78,7 @@ export default function Home() {
                   )}
                 </div>
               </div>
-              <div className="flex flex-1 rounded-xl bg-[var(--surface)]">
+              <div className="flex h-[500px] rounded-xl bg-[var(--surface)] 2xl:h-auto 2xl:max-w-md">
                 <ExtractContent
                   transactions={transactions}
                   account={account}
@@ -91,24 +91,29 @@ export default function Home() {
         );
       case "transferencias":
         return (
-          <div className="rounded-xl bg-[var(--surface)] p-4 md:p-6">
-            <h2 className="text-xl font-semibold md:text-2xl">
-              Transferências
-            </h2>
+          <div className="flex min-h-[60vh] flex-col items-center justify-center rounded-xl bg-[var(--surface)] p-4 md:p-6">
+            <UnderConstruction
+              title="Transferências em desenvolvimento"
+              message="Estamos aprimorando nossas funcionalidades de transferência para oferecer a melhor experiência. Esta seção estará disponível em breve."
+            />
           </div>
         );
       case "investimentos":
         return (
-          <div className="rounded-xl bg-[var(--surface)] p-4 md:p-6">
-            <h2 className="text-xl font-semibold md:text-2xl">Investimentos</h2>
+          <div className="flex min-h-[60vh] flex-col items-center justify-center rounded-xl bg-[var(--surface)] p-4 md:p-6">
+            <UnderConstruction
+              title="Investimentos em desenvolvimento"
+              message="Nossa plataforma de investimentos está sendo desenvolvida com as melhores práticas do mercado. Em breve você poderá acompanhar e gerenciar seus investimentos aqui."
+            />
           </div>
         );
       case "servicos":
         return (
-          <div className="rounded-xl bg-[var(--surface)] p-4 md:p-6">
-            <h2 className="text-xl font-semibold md:text-2xl">
-              Outros Serviços
-            </h2>
+          <div className="flex min-h-[60vh] flex-col items-center justify-center rounded-xl bg-[var(--surface)] p-4 md:p-6">
+            <UnderConstruction
+              title="Serviços adicionais em desenvolvimento"
+              message="Estamos trabalhando para expandir nosso catálogo de serviços. Em breve você terá acesso a diversas funcionalidades adicionais nesta seção."
+            />
           </div>
         );
       default:

@@ -1,21 +1,22 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useState } from "react";
 
 import SideBarItem from "@/app/dashboard/components/SideBar/SideBarItem";
 
-import Logotipo from "@/assets/logotipo.png";
+import LogoIcon from "@/assets/fav.svg";
 import IconHome from "@/assets/icons/icon-home.svg";
-import IconTransfer from "@/assets/icons/icon-transfer.svg";
 import IconInvestments from "@/assets/icons/icon-investments.svg";
 import IconServices from "@/assets/icons/icon-services.svg";
+import IconTransfer from "@/assets/icons/icon-transfer.svg";
+import Logotipo from "@/assets/logotipo.png";
 import {
   Bars3Icon,
-  XMarkIcon,
-  ChevronRightIcon,
   ChevronLeftIcon,
+  ChevronRightIcon,
+  XMarkIcon,
 } from "@heroicons/react/24/outline";
 
 const menuItems = [
@@ -139,12 +140,18 @@ export default function SideBar() {
           aria-label="Navegação principal"
         >
           <div className="relative flex w-full flex-col items-center">
-            <Image
-              src={Logotipo}
-              className={`transition-all duration-200 hover:scale-105 ${isExpanded || isMobile ? "w-[75%] pt-6 pb-12" : "w-12 py-6"} 2xl:w-[75%] 2xl:pt-6 2xl:pb-12`}
-              alt="Bytebank Logotipo"
-              priority
-            />
+            {isExpanded || isMobile ? (
+              <Image
+                src={Logotipo}
+                className="w-[75%] pt-6 pb-12 transition-all duration-200 hover:scale-105 2xl:w-[75%] 2xl:pt-6 2xl:pb-12"
+                alt="Bytebank Logotipo"
+                priority
+              />
+            ) : (
+              <div className="flex justify-center py-6">
+                <LogoIcon className="size-12 object-contain transition-all duration-200 hover:scale-105" />
+              </div>
+            )}
 
             <nav
               className="flex w-full flex-col gap-4"

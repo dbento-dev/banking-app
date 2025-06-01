@@ -55,31 +55,41 @@ export default function TransactionItem({
     }
   };
 
-  const handleEditClick = () => {
+  const handleEditClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
     onSetEditTransaction(transaction);
   };
+
+  const handleDeleteClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    handleOpenDeleteModal(transaction);
+  };
+
+  const isIncome = transaction.category_name === "Entrada";
 
   return (
     <li
       key={transaction.id}
-      className={`flex items-center justify-between rounded-lg p-3 transition-colors ${
-        transaction.category_name === "Entrada"
-          ? "hover:bg-green-50"
-          : "hover:bg-red-50"
+      className={`flex w-full items-center justify-between rounded-lg p-3 transition-colors ${
+        isIncome ? "hover:bg-green-50" : "hover:bg-red-50"
       }`}
     >
       {isPending && <Loader />}
 
-      <div className="flex items-center gap-6">
-        {transaction.category_name === "Entrada" ? (
-          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#E8FFF3] text-[#14AE5C]">
+      <div className="flex items-center gap-3 md:gap-4">
+        <div
+          className={`flex h-10 w-10 items-center justify-center rounded-full ${
+            isIncome
+              ? "bg-[#E8FFF3] text-[#14AE5C]"
+              : "bg-[#FFE8E8] text-[#ED4A4C]"
+          }`}
+        >
+          {isIncome ? (
             <IconArrowPositive className="size-[14px] stroke-current" />
-          </div>
-        ) : (
-          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#FFE8E8] text-[#ED4A4C]">
+          ) : (
             <IconArrowNegative className="size-[14px] stroke-current" />
-          </div>
-        )}
+          )}
+        </div>
 
         <div className="flex flex-col">
           <span className="text-sm font-medium text-gray-700">
@@ -91,33 +101,30 @@ export default function TransactionItem({
         </div>
       </div>
 
-      <div className="flex items-center gap-6">
+      <div className="flex items-center gap-3 md:gap-4">
         <span
-          className={`text-sm font-semibold ${
-            transaction.category_name === "Entrada"
-              ? "text-[#14AE5C]"
-              : "text-[#ED4A4C]"
+          className={`text-sm font-semibold whitespace-nowrap ${
+            isIncome ? "text-[#14AE5C]" : "text-[#ED4A4C]"
           }`}
         >
-          {transaction.category_name === "Entrada" ? "+" : "-"} R${" "}
-          {transaction.amount.replace(".", ",")}
+          {isIncome ? "+" : "-"} R$ {transaction.amount.replace(".", ",")}
         </span>
 
-        <div
-          onClick={handleEditClick}
-          title={`Editar ${transaction.description}`}
-          className="flex items-center gap-2"
-        >
-          <div className="mr-1 flex h-5 w-5 cursor-pointer items-center justify-center rounded-full bg-[#2d68fd44] text-[#2D68FD] transition-colors duration-200 ease-in-out hover:bg-[#2d68fd66]">
+        <div className="flex items-center gap-1">
+          <button
+            onClick={handleEditClick}
+            title={`Editar ${transaction.description}`}
+            className="mr-1 flex h-6 w-6 cursor-pointer items-center justify-center rounded-full bg-[#2d68fd44] text-[#2D68FD] transition-colors duration-200 ease-in-out hover:bg-[#2d68fd66]"
+          >
             <IconEdit className="size-[12px] stroke-current" />
-          </div>
-          <div
-            onClick={() => handleOpenDeleteModal(transaction)}
+          </button>
+          <button
+            onClick={handleDeleteClick}
             title={`Excluir ${transaction.description}`}
-            className="flex h-5 w-5 cursor-pointer items-center justify-center rounded-full bg-[#ed4a4d4b] text-[#ED4A4C] transition-colors duration-200 ease-in-out hover:bg-[#ed4a4d70]"
+            className="flex h-6 w-6 cursor-pointer items-center justify-center rounded-full bg-[#ed4a4d4b] text-[#ED4A4C] transition-colors duration-200 ease-in-out hover:bg-[#ed4a4d70]"
           >
             <IconDelete className="size-[12px] stroke-current" />
-          </div>
+          </button>
         </div>
       </div>
 

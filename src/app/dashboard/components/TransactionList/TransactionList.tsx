@@ -2,72 +2,94 @@ import TransactionItem from "@/app/dashboard/components/TransactionItem/Transact
 import { Transaction } from "@/types/transactionEntities";
 import { User } from "@/types/userEntities";
 import { WalletIcon } from "lucide-react";
+import { useMemo } from "react";
 
 interface TransactionListProps {
   user: User | null;
   transactions: Transaction[];
   onSetEditTransaction: (transaction: Transaction) => void;
 }
+
 export default function TransactionList({
   user,
   transactions,
   onSetEditTransaction,
 }: TransactionListProps) {
-  if (!transactions || transactions.length === 0) {
+  // Função para obter o nome do mês a partir da data
+  const getMonthName = (dateString: string) => {
+    const date = new Date(dateString);
+    const month = date.toLocaleDateString("pt-BR", { month: "long" });
+    const year = date.getFullYear();
+    return `${month} De ${year}`;
+  };
+
+  // Ordena as transações por data (mais recente primeiro) e agrupa por mês
+  const groupedTransactions = useMemo(() => {
+    // Ordena transações por data (mais recente primeiro)
+    const sortedTransactions = [...transactions].sort((a, b) => {
+      return (
+        new Date(b.transaction_date).getTime() -
+        new Date(a.transaction_date).getTime()
+      );
+    });
+
+    // Agrupa por mês
+    const groups = sortedTransactions.reduce<Record<string, Transaction[]>>(
+      (acc, transaction) => {
+        const monthYear = getMonthName(transaction.transaction_date);
+        if (!acc[monthYear]) {
+          acc[monthYear] = [];
+        }
+        acc[monthYear].push(transaction);
+        return acc;
+      },
+      {}
+    );
+
+    // Converte para um array de { month, transactions }
+    return Object.entries(groups).map(([month, transactions]) => ({
+      month,
+      transactions,
+    }));
+  }, [transactions]);
+
+  if (transactions.length === 0) {
     return (
-      <div className="flex h-full flex-col items-center justify-center">
-        <p className="text-center text-sm text-[var(--color-text-secondary)]">
+      <div className="flex w-full flex-col items-center justify-center py-10">
+        <p className="text-center text-gray-500">
           Nenhuma transação encontrada.
         </p>
       </div>
     );
   }
-  const groupedTransactions = transactions.reduce(
-    (acc, transaction) => {
-      const date = new Date(transaction.transaction_date);
-      const month = date.toLocaleString("pt-BR", { month: "long" });
-      const key = month;
-      if (!acc[key]) acc[key] = [];
-      acc[key].push(transaction);
-      return acc;
-    },
-    {} as Record<string, Transaction[]>
-  );
-  const sortedGroups = Object.entries(groupedTransactions).sort((a, b) => {
-    const dateA = new Date(a[1][0].transaction_date);
-    const dateB = new Date(b[1][0].transaction_date);
-    return dateB.getTime() - dateA.getTime();
-  });
 
   return (
-    <div className="flex flex-col">
-      <div className="mb-6 flex items-center">
+    <div className="flex w-full flex-col">
+      <div className="mb-4 flex items-center">
         <WalletIcon className="mr-2 h-5 w-5 text-[var(--color-text)]" />
         <h4 className="text-xl font-semibold text-[var(--color-text)]">
           Extrato
         </h4>
       </div>
-      <div className="flex-1">
-        <div className="space-y-8 pr-2">
-          {sortedGroups.map(([groupName, transactions], index) => (
-            <div key={groupName}>
-              <div className="mb-4">
-                <span className="block text-sm font-semibold text-gray-700 capitalize">
-                  {groupName}
-                </span>
-              </div>
-              <ul className="w-full space-y-4 sm:min-w-sm">
-                {transactions.map((transaction) => (
+      <div className="w-full">
+        <div className="w-full">
+          {groupedTransactions.map((group, index) => (
+            <div key={group.month} className="mb-4 w-full">
+              <h3 className="mb-2 text-base font-medium text-gray-700 capitalize">
+                {group.month}
+              </h3>
+              <ul className="w-full space-y-1">
+                {group.transactions.map((transaction) => (
                   <TransactionItem
-                    transaction={transaction}
-                    user={user}
                     key={transaction.id}
+                    user={user}
+                    transaction={transaction}
                     onSetEditTransaction={onSetEditTransaction}
                   />
                 ))}
               </ul>
-              {index !== sortedGroups.length - 1 && (
-                <div className="mt-8 mb-4 h-px bg-[#d8d8d8]" />
+              {index < groupedTransactions.length - 1 && (
+                <div className="my-4 h-px w-full bg-gray-200" />
               )}
             </div>
           ))}
