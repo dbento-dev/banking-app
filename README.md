@@ -11,20 +11,24 @@ Nela aprendemos e aplicamos conhecimentos de front-end utilizando Next.js e Reac
 
 ## :grey_exclamation: Sobre o Projeto
 
-Este projeto foi criado para ajudar nos estudos de front-end, simulando um sistema bancário digital simples. Com ele, você pode cadastrar usuários, criar contas, registrar transações e organizar suas finanças por categorias, tudo seguindo uma ideia de design system intuitivo e charmoso. O objetivo é mostrar, na prática, o design system adotado, como funciona as boas práticas, a responsividade e fluidez do front-end, juntamente da integração com banco de dados, o uso do Docker e a documentação de APIs.
+Este projeto foi criado para ajudar nos estudos de front-end, simulando um sistema bancário digital simples. Com ele, você pode registrar transações e organizar suas finanças por categorias, tudo seguindo uma ideia de design system intuitivo e charmoso. O objetivo é mostrar, na prática, o design system adotado, como funciona as boas práticas, a responsividade e fluidez do front-end, juntamente da integração com banco de dados, o uso do Docker e a documentação de APIs.
 
 Além disso, este front-end pode ser integrado a um Back-end disponível no repositório Bytebank. A proposta é ser um ambiente de aprendizado para quem quer entender como definir um guia de estilo, responsidade e simplicidade de design, e construir e organizar uma API para aplicações financeiras de forma clara e didática.
 
 ## :white_check_mark: Funcionalidades:
 
 - [x] Responsividade de tela, se adaptando a desktop, tablet e mobile
-- [x] Cadastro e autenticação de usuários
-- [x] Gerenciamento de contas bancárias
-- [x] Controle de categorias de transações (entrada/saída)
 - [x] Registro, consulta, alteração e remoção de transações financeiras
 - [x] Atualização automática de saldo via triggers no banco de dados
 - [x] Documentação interativa via Swagger
 
+---
+
+#### Ainda em desenvolvimento:
+
+- [ ] Cadastro e autenticação de usuários
+- [ ] Gerenciamento de contas bancárias
+- [ ] Controle de categorias de transações (entrada/saída)
 ---
 
 ## :computer: WEB Layout
@@ -65,6 +69,7 @@ As tecnologias principais utilizadas durante o desenvolvimento deste projeto sã
 - [Node.js](https://nodejs.org/)
 - [Docker](https://www.docker.com/) e [Docker Compose](https://docs.docker.com/compose/)
 - [npm](https://www.npmjs.com/)
+- [API](https://github.com/dbento-dev/banking-api)
 
 ### Passos
 
@@ -73,6 +78,11 @@ As tecnologias principais utilizadas durante o desenvolvimento deste projeto sã
    ```sh
    git clone <url-do-repo>
    cd banking-api
+   ```
+
+   ```sh
+   git clone <url-do-repo>
+   cd banking-app
    ```
 
 2. **Suba o banco de dados e a API com Docker Compose:**
