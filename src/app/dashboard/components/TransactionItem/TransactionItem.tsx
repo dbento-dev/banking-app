@@ -131,12 +131,20 @@ export default function TransactionItem({
         </div>
       </div>
 
-      <DeleteModal
+      {isModalOpen && selectedItem && (
+        <DeleteModal
+          isOpen={isModalOpen}
+          onClose={handleCloseDeleteModal}
+          onConfirmDelete={handleConfirmDeleteItem}
+          itemName={selectedItem.description}
+        />
+      )}
+      {/* <DeleteModal
         isOpen={isModalOpen}
         onClose={handleCloseDeleteModal}
         onConfirmDelete={handleConfirmDeleteItem}
         itemName={selectedItem?.description}
-      />
+      /> */}
     </li>
   );
 }
