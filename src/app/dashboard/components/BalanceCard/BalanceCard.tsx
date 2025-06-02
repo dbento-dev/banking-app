@@ -52,22 +52,24 @@ export default function BalanceCard({
               <div className="absolute left-0 h-8 w-8 rounded-full bg-[#F21439] sm:h-10 sm:w-10" />
             </div>
           </div>
-          <div className="">
+          <div>
             <div className="group flex items-center gap-2">
               <button
                 type="button"
                 onClick={() => setIsBalanceVisible(!isBalanceVisible)}
                 className="cursor-pointer opacity-70 transition-opacity hover:opacity-100"
               >
-                <IconEye className="h-4 w-4 sm:h-5 sm:w-5" />
+                <IconEye />
               </button>
               <p className="text-lg font-medium tracking-wider sm:text-xl">
                 {isBalanceVisible ? formattedBalance : "R$ ••••••"}
               </p>
             </div>
-            <p className="mt-1 text-sm tracking-wide opacity-70 sm:text-base">
-              {accountType}
-            </p>
+            <div className="flex flex-col items-end">
+              <p className="mt-1 text-sm tracking-wide opacity-70 sm:text-base">
+                {accountType}
+              </p>
+            </div>
           </div>
         </div>
       </div>
