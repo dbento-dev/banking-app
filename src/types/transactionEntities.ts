@@ -14,6 +14,18 @@ export interface TransactionCreate {
   transactionDate: string;
   categoryId: string;
 }
+export interface TransactionDelete {
+  transactionId: string;
+  accountId: string;
+}
+export interface TransactionEdit {
+  id: string;
+  categoryId: string;
+  amount: number;
+  description: string;
+  transactionDate: string;
+}
+
 export interface TransactionFormState {
   categoryId: string;
   amount: string;

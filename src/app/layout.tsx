@@ -3,8 +3,8 @@
 import SideBar from "@/app/dashboard/components/SideBar/SideBar";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Space_Grotesk } from "next/font/google";
-import { Toaster } from "sonner";
 import React from "react";
+import { Toaster } from "sonner";
 import "./globals.css";
 
 const spaceGrotesk = Space_Grotesk({
