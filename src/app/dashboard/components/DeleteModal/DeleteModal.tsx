@@ -16,6 +16,7 @@ export function DeleteModal({
   itemName,
 }: DeleteModalProps) {
   return (
+    // TODO: validar condicional na etapa de transactionItem
     isOpen && (
       <div
         className={`fixed inset-0 z-50 flex items-center justify-center transition-opacity duration-300 ease-in-out ${

@@ -131,6 +131,8 @@ export default function TransactionItem({
         </div>
       </div>
 
+      {/* TODO: validar condicional no delete modal */}
+
       {isModalOpen && selectedItem && (
         <DeleteModal
           isOpen={isModalOpen}
