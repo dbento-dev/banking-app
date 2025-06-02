@@ -131,8 +131,6 @@ export default function TransactionItem({
         </div>
       </div>
 
-      {/* TODO: validar condicional no delete modal */}
-
       {isModalOpen && selectedItem && (
         <DeleteModal
           isOpen={isModalOpen}
@@ -141,12 +139,6 @@ export default function TransactionItem({
           itemName={selectedItem.description}
         />
       )}
-      {/* <DeleteModal
-        isOpen={isModalOpen}
-        onClose={handleCloseDeleteModal}
-        onConfirmDelete={handleConfirmDeleteItem}
-        itemName={selectedItem?.description}
-      /> */}
     </li>
   );
 }

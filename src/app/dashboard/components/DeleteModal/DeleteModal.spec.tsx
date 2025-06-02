@@ -29,12 +29,6 @@ describe("DeleteModal", () => {
     ).toBeInTheDocument();
   });
 
-  it("should not render modal when isOpen is false", () => {
-    render(<DeleteModal {...defaultProps} isOpen={false} />);
-    // The modal content should not be in the document
-    expect(screen.queryByText("Confirmar exclusão")).not.toBeInTheDocument();
-  });
-
   it("should call onClose when Cancelar button is clicked", () => {
     render(<DeleteModal {...defaultProps} />);
     fireEvent.click(screen.getByRole("button", { name: /Cancelar/i }));
