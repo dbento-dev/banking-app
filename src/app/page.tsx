@@ -46,7 +46,7 @@ export default function Home() {
         return (
           <div className="flex w-full flex-col gap-4 max-md:pt-20">
             <div className="flex w-full flex-col gap-6 2xl:flex-row">
-              <div className="flex h-full w-full flex-grow flex-col rounded-xl bg-[var(--surface)] px-4 py-8 sm:px-8 md:px-10 lg:px-20">
+              <div className="flex flex-col rounded-xl bg-[var(--surface)] px-4 py-8 sm:px-8 md:px-10 lg:px-20 2xl:max-w-[65%] 2xl:basis-3/4">
                 {isLoadingUser && <Loader />}
 
                 {user && <DashboardHeader name={user.name} />}
@@ -78,7 +78,7 @@ export default function Home() {
                   )}
                 </div>
               </div>
-              <div className="flex h-[500px] rounded-xl bg-[var(--surface)] 2xl:h-auto 2xl:max-w-md">
+              <div className="flex h-[500px] rounded-xl bg-[var(--surface)] 2xl:h-auto 2xl:max-w-[35%] 2xl:basis-4/4">
                 <ExtractContent
                   transactions={transactions}
                   account={account}

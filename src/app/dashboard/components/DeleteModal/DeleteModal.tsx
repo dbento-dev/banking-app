@@ -9,7 +9,7 @@ interface DeleteModalProps {
 }
 
 export function DeleteModal({
-  isOpen,
+  isOpen = false,
   onClose,
   onConfirmDelete,
   itemName,
