@@ -75,6 +75,8 @@ As tecnologias principais utilizadas durante o desenvolvimento deste projeto sã
 
 1. **Clone o repositório:**
 
+   É necessário fazer um git clone do repositório do Back-End que abriga a API, o link se encontra nos pré-requisitos (clicar em API)
+
    ```sh
    git clone <url-do-repo>
    cd banking-api
@@ -85,7 +87,7 @@ As tecnologias principais utilizadas durante o desenvolvimento deste projeto sã
    cd banking-app
    ```
 
-2. **Suba o banco de dados e a API com Docker Compose:**
+3. **Suba o banco de dados e a API com Docker Compose:**
 
    ```sh
    docker-compose up --build
@@ -93,12 +95,12 @@ As tecnologias principais utilizadas durante o desenvolvimento deste projeto sã
 
    A API estará disponível em: [http://localhost:4000](http://localhost:4000)
 
-3. **Acesse a documentação Swagger:**
+4. **Acesse a documentação Swagger:**
    Ela fornece uma interface interativa para testar os endpoints da API.
 
    [http://localhost:4000/api-docs](http://localhost:4000/api-docs)
 
-4. **(Opcional) Rodar localmente sem Docker:**
+5. **(Opcional) Rodar localmente sem Docker:**
    - Configure as variáveis de ambiente do banco de dados
    - Instale as dependências:
 
