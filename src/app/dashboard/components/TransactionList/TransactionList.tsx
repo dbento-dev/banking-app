@@ -22,10 +22,8 @@ export default function TransactionList({
       month: "long",
       timeZone: "UTC",
     });
-    const capitalizedMonth =
-      month.charAt(0).toUpperCase() + month.slice(1).toLowerCase();
     const year = date.getUTCFullYear();
-    return `${capitalizedMonth} de ${year}`;
+    return `${month} de ${year}`;
   };
 
   // Ordena as transações por data (mais recente primeiro) e agrupa por mês
@@ -80,7 +78,7 @@ export default function TransactionList({
         <div className="w-full">
           {groupedTransactions.map((group, index) => (
             <div key={group.month} className="mb-4 w-full">
-              <h3 className="mb-2 text-base font-medium text-gray-700">
+              <h3 className="mb-2 text-base font-medium text-gray-700 capitalize">
                 {group.month}
               </h3>
               <ul className="w-full space-y-1">
