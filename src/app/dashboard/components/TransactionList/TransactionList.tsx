@@ -18,9 +18,14 @@ export default function TransactionList({
   // Função para obter o nome do mês a partir da data
   const getMonthName = (dateString: string) => {
     const date = new Date(dateString);
-    const month = date.toLocaleDateString("pt-BR", { month: "long" });
-    const year = date.getFullYear();
-    return `${month} De ${year}`;
+    const month = date.toLocaleDateString("pt-BR", {
+      month: "long",
+      timeZone: "UTC",
+    });
+    const capitalizedMonth =
+      month.charAt(0).toUpperCase() + month.slice(1).toLowerCase();
+    const year = date.getUTCFullYear();
+    return `${capitalizedMonth} de ${year}`;
   };
 
   // Ordena as transações por data (mais recente primeiro) e agrupa por mês
@@ -75,7 +80,7 @@ export default function TransactionList({
         <div className="w-full">
           {groupedTransactions.map((group, index) => (
             <div key={group.month} className="mb-4 w-full">
-              <h3 className="mb-2 text-base font-medium text-gray-700 capitalize">
+              <h3 className="mb-2 text-base font-medium text-gray-700">
                 {group.month}
               </h3>
               <ul className="w-full space-y-1">
