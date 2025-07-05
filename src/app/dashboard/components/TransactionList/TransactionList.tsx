@@ -18,9 +18,12 @@ export default function TransactionList({
   // Função para obter o nome do mês a partir da data
   const getMonthName = (dateString: string) => {
     const date = new Date(dateString);
-    const month = date.toLocaleDateString("pt-BR", { month: "long" });
-    const year = date.getFullYear();
-    return `${month} De ${year}`;
+    const month = date.toLocaleDateString("pt-BR", {
+      month: "long",
+      timeZone: "UTC",
+    });
+    const year = date.getUTCFullYear();
+    return `${month} de ${year}`;
   };
 
   // Ordena as transações por data (mais recente primeiro) e agrupa por mês
